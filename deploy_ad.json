@@ -131,6 +131,7 @@
                             "ConfigurationFunction": "[variables('adConfigurationFunction')]",
                             "Properties": {
                                 "DomainName": "[parameters('domainName')]",
+                                "MachineName": "[parameters('adVmName')]",
                                 "AdminCreds": {
                                     "UserName": "[parameters('adminUsername')]",
                                     "Password": "PrivateSettingsRef:AdminPassword"
