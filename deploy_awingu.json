@@ -115,13 +115,14 @@
                 "publisher": "Microsoft.OSTCExtensions",
                 "type": "CustomScriptForLinux",
                 "typeHandlerVersion": "1.4",
+                "autoUpgradeMinorVersion": true,
                 "settings": {
-                "fileUris": [
-                    "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]"
-                ],
-                "commandToExecute": "python setup_awingu.py"
+                    "fileUris": [
+                        "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]"
+                    ],
+                    "commandToExecute": "python setup_awingu.py"
+                }
             }
-          }
         }
     ]
 }
