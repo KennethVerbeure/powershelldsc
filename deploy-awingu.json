@@ -1,0 +1,127 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminPassword": {
+            "type": "String"
+        },
+        "adminUsername": {
+            "type": "String"
+        },
+        "awinguVmName": {
+            "type": "String"
+        },
+        "baseResourcesUri": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        },
+        "subnetRef": {
+            "type": "String"
+        },
+        "securityGroup": {
+            "type": "String"
+        },
+        "vmDiskBaseUri": {
+            "type": "String"
+        },
+        "awinguVM": {
+            "type": "object"
+        }
+    },
+    "variables": {
+        "customScriptUrl": "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]",
+        "apiVersion": "2015-06-15"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('awinguVmName')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[parameters('subnetRef')]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[parameters('securityGroup')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('awinguVmName')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', parameters('awinguVmName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('awinguVM').vmSize]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('awinguVmName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('awinguVM').imagePublisher]",
+                        "offer": "[parameters('awinguVM').imageOffer]",
+                        "sku": "[parameters('awinguVM').imageSKU]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "osDisk",
+                        "vhd": {
+                            "uri": "[concat(parameters('vmDiskBaseUri'), parameters('awinguVmName'),'-osdisk.vhd')]"
+                        },
+                        "caching": "None",
+                        "createOption": "FromImage"
+                    },
+                    "dataDisks": []
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "properties": {
+                                "primary": "true"
+                            },
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('awinguVmName'))]"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('awinguVmName'), '/setup')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('awinguVmName'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.OSTCExtensions",
+                "type": "CustomScriptForLinux",
+                "typeHandlerVersion": "1.4",
+                "settings": {
+                "fileUris": [
+                    "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]"
+                ],
+                "commandToExecute": "python setup_awingu.py"
+            }
+          }
+        }
+    ]
+}
