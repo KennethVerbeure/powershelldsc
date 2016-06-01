@@ -147,5 +147,11 @@
                 }
             ]
         }
-    ]
+    ],
+    "outputs": {
+        "adServerAddress": {
+            "value": "[reference(concat('Microsoft.Network/networkInterfaces/', variables('adNicPrefix'))).ipConfigurations[0].properties.privateIPAddress]",
+            "type": "String"
+        }
+    }
 }

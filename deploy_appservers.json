@@ -17,7 +17,7 @@
         "domainName": {
             "type": "String"
         },
-        "dnsServerAddress": {
+        "adServerAddress": {
             "type": "String"
         },
         "location": {
@@ -133,7 +133,7 @@
                             "ModulesUrl": "[variables('appModulesURL')]",
                             "ConfigurationFunction": "[variables('appConfigurationFunction')]",
                             "Properties": {
-                                "DnsServerAddress": "[parameters('dnsServerAddress')]",
+                                "DnsServerAddress": "[parameters('adServerAddress')]",
                                 "DomainName": "[parameters('domainName')]",
                                 "MachineName": "[parameters('appServerName')]",
                                 "AdminCreds": {
