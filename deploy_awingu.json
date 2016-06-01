@@ -97,7 +97,7 @@
                             "properties": {
                                 "primary": "true"
                             },
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('awinguVmName'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('awinguVmName'))]"
                         }
                     ]
                 }
