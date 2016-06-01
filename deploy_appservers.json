@@ -1,0 +1,155 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminPassword": {
+            "type": "String"
+        },
+        "adminUsername": {
+            "type": "String"
+        },
+        "appServerName": {
+            "type": "String"
+        },
+        "baseResourcesUri": {
+            "type": "String"
+        },
+        "domainName": {
+            "type": "String"
+        },
+        "dnsServerAddress": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        },
+        "subnetRef": {
+            "type": "String"
+        },
+        "securityGroup": {
+            "type": "String"
+        },
+        "vmDiskBaseUri": {
+            "type": "String"
+        },
+        "winVM": {
+            "type": "object"
+        }
+    },
+    "variables": {
+        "appNicPrefix": "[parameters('appServerName')]",
+        "appModulesURL": "[concat(parameters('baseResourcesUri'), 'CreateAppServer.ps1.zip')]",
+        "appConfigurationFunction": "CreateAppServer.ps1\\CreateAppServer",
+        "apiVersion": "2015-06-15"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[variables('appNicPrefix')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "displayName": "appServer_NetworkInterface"
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[parameters('subnetRef')]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[parameters('securityGroup')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('appServerName')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('appNicPrefix'))]"
+            ],
+            "tags": {
+                "displayName": "app_vm_resource"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('winVM').vmSize]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('appServerName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('winVM').imagePublisher]",
+                        "offer": "[parameters('winVM').imageOffer]",
+                        "sku": "[parameters('winVM').imageSKU]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "osdisk",
+                        "vhd": {
+                            "uri": "[concat(parameters('vmDiskBaseUri'), parameters('appServerName'),'-osdisk.vhd')]"
+                        },
+                        "caching": "None",
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "properties": {
+                                "primary": "true"
+                            },
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('appNicPrefix'))]"
+                        }
+                    ]
+                }
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "name": "[concat(parameters('appServerName'),'/CreateAppServer')]",
+                    "apiVersion": "[variables('apiVersion')]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('appServerName'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Powershell",
+                        "type": "DSC",
+                        "typeHandlerVersion": "2.14",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "ModulesUrl": "[variables('appModulesURL')]",
+                            "ConfigurationFunction": "[variables('appConfigurationFunction')]",
+                            "Properties": {
+                                "DnsServerAddress": "[parameters('dnsServerAddress')]",
+                                "DomainName": "[parameters('domainName')]",
+                                "MachineName": "[parameters('appServerName')]",
+                                "AdminCreds": {
+                                    "UserName": "[parameters('adminUsername')]",
+                                    "Password": "PrivateSettingsRef:AdminPassword"
+                                }
+                            }
+                        },
+                        "protectedSettings": {
+                            "Items": {
+                                "AdminPassword": "[parameters('adminPassword')]"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
