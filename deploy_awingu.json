@@ -105,11 +105,11 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(parameters('vmname'), '/setup')]",
+            "name": "[concat(parameters('awinguVmName'), '/setup')]",
             "apiVersion": "[variables('apiVersion')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', parameters('vmname'))]"
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('awinguVmName'))]"
             ],
             "properties": {
                 "publisher": "Microsoft.OSTCExtensions",
@@ -118,9 +118,9 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[concat(parameters('baseResourcesUri'), 'setup_vm.py')]"
+                        "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]"
                     ],
-                    "commandToExecute": "python setup_vm.py"
+                    "commandToExecute": "python setup_awingu.py"
                 }
             }
         }
