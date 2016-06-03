@@ -75,18 +75,15 @@
                     "adminPassword": "[parameters('adminPassword')]"
                 },
                 "storageProfile": {
-                    "imageReference": {
-                        "publisher": "[parameters('awinguVM').imagePublisher]",
-                        "offer": "[parameters('awinguVM').imageOffer]",
-                        "sku": "[parameters('awinguVM').imageSKU]",
-                        "version": "latest"
-                    },
                     "osDisk": {
-                        "name": "osDisk",
+                        "name": "osdisk",
+                        "image": {
+                            "uri": "[parameters('awinguVM').image]"
+                        },
                         "vhd": {
                             "uri": "[concat(parameters('vmDiskBaseUri'), parameters('awinguVmName'),'-osdisk.vhd')]"
                         },
-                        "caching": "None",
+                        "caching": "ReadWrite",
                         "createOption": "FromImage"
                     },
                     "dataDisks": []
