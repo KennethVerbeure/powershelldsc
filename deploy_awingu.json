@@ -80,6 +80,7 @@
                         "image": {
                             "uri": "[parameters('awinguVM').image]"
                         },
+                        "osType": "Linux",
                         "vhd": {
                             "uri": "[concat(parameters('vmDiskBaseUri'), parameters('awinguVmName'),'-osdisk.vhd')]"
                         },
