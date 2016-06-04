@@ -28,6 +28,15 @@
         },
         "awinguVM": {
             "type": "object"
+        },
+        "adServerAddress": {
+            "type": "String"
+        },
+        "domainName": {
+            "type": "String"
+        },
+        "awinguAdminPassword": {
+            "type": "String"
         }
     },
     "variables": {
@@ -118,7 +127,7 @@
                     "fileUris": [
                         "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]"
                     ],
-                    "commandToExecute": "python setup_awingu.py"
+                    "commandToExecute": "[concat('python setup_awingu.py --dns ', parameters('adServerAddress') ,' --domain ', parameters('domainName'), ' --adminpass ', parameters('awinguAdminPassword'))]"
                 }
             }
         }
