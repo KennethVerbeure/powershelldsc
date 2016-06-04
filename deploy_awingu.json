@@ -125,7 +125,8 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]"
+                        "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]",
+                        "[concat(parameters('baseResourcesUri'), 'api_installer.py')]"
                     ],
                     "commandToExecute": "[concat('python setup_awingu.py --dns ', parameters('adServerAddress') ,' --domain ', parameters('domainName'), ' --adminpass ', parameters('awinguAdminPassword'))]"
                 }
