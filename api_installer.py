@@ -125,6 +125,8 @@ def update_dict(original, updates):
 
 
 def patch_appliance(frontend_ips, key_filename, version, params):
+    import fabric.context_managers, fabfile
+
     for frontend_ip in frontend_ips:
         with fabric.context_managers.settings(host_string=frontend_ip,
                                               user='root',
@@ -234,18 +236,17 @@ def install_via_api(params, iaas_config, nodes, pub_ip):
                                           'network',
                                           params.get('extra_config'))['']
 
+    admin_creds = params.get('admin_creds', API_ADMIN_CREDS)
+
     installer_config = {
         'version_number': version,
         'config': {
             'eula': {'accepted': True},
             'environment': {
                 'managementUser': {
-                    'username': params.get(
-                        'username', API_ADMIN_CREDS['username']),
-                    'password': params.get(
-                        'password', API_ADMIN_CREDS['password']),
-                    'confirmed_password': params.get(
-                        'password', API_ADMIN_CREDS['password']),
+                    'username': admin_creds['username'],
+                    'password': admin_creds['password'],
+                    'confirmed_password': admin_creds['password'],
                 },
                 'partner': {
                     'name': 'Partner Inc.',
@@ -766,7 +767,8 @@ def configure_via_api(params, nodes):
     logger.info('Waiting for max. %s seconds to be able to sign-in', timeout)
     while time.time() - start_time <= timeout:
         try:
-            sess, base_url = make_session(proxy_ip)
+            admin_creds = params.get('admin_creds', API_ADMIN_CREDS)
+            sess, base_url = make_session(proxy_ip, creds=admin_creds)
         except requests.exceptions.HTTPError as e:
             logger.warning('Ignore error during sign-in: %s', e)
             time.sleep(10)
