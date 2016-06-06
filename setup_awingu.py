@@ -75,7 +75,7 @@ if __name__ == '__main__':
         'apply_changes_after_repo_url_invalidation': True,
         'iaas_stack': 'azure',
         'network_config': False,
-        'version': '3.1.1',
+        'version': '3.1.0',
         'config_fixtures': 'azure-arm',
         'vm_basename': 'awingu'
     }
