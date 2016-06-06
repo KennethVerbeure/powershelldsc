@@ -115,8 +115,10 @@ if __name__ == '__main__':
     nodes = [DummyNode('awingu', private_ips=[get_ip_address('eth0')])]
 
     params = {
-        'username': 'awingu-admin',
-        'password': args.admin_pass,
+        'admin_creds': {
+            'username': 'awingu-admin',
+            'password': args.admin_pass
+        },
         'ssh_patches': False,
         'node_configuration': 'single_node',
         'environment': 'production',
