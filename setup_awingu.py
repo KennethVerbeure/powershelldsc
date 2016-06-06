@@ -7,7 +7,7 @@ import os
 import json
 import argparse
 
-from api_installer import install_via_api
+from api_installer import install_via_api, configure_via_api
 
 logger = logging.getLogger('deploy_awingu')
 logger.setLevel(logging.DEBUG)
@@ -35,38 +35,88 @@ def get_ip_address(ifname):
     )[20:24])
 
 
-def create_configs(dns_ip):
+def createBaseDn(domain_pieces):
+    #eg "dc=stack,dc=awingu,dc=com"
+    baseDn = ''
+    first = True
+
+    for piece in domain_pieces:
+        if first:
+            first = False
+            baseDn += 'dc=%s' % piece
+        else:
+            baseDn += ',dc=%s' % piece
+
+    return baseDn
+
+
+def create_network_config(base_path, configs_path, args):
+    network_config = {
+        "": {
+            'dnsIp': args.dns,
+            'ntpServer': '0.europe.pool.ntp.org',
+        }
+    }
+
+    with open(''.join([configs_path, 'network.json']), 'w') as outfile:
+        json.dump(network_config, outfile)
+
+
+def create_domain_config(base_path, configs_path, args):
+    domain_pieces = args.domain.split['.']
+
+    domain_config = [{
+        "name": domain_pieces[0].upper(),
+        "fqdn": args.domain,
+        "bindName": args.domain_admin,
+        "bindPassword": args.domain_pass,
+        "dns": args.dns,
+        "hostHeader": "",
+        "isAdmin": True,
+        "netbios": domain_pieces[0].upper(),
+        "userconnector": {
+            "ldap": {
+                "server": args.domain,
+                "baseDn": createBaseDn(domain_pieces)
+            },
+            "functions": {
+                "createBindName": "builtin.create_domain_bind_name",
+                "findGroups": "builtin.find_groups_by_member_of"
+            }
+        }
+    }]
+
+    with open(''.join([configs_path, 'domains.json']), 'w') as outfile:
+        json.dump(domain_config, outfile)
+
+
+def create_configs(args):
     base_path = os.path.dirname(os.path.realpath(__file__))
     configs_path = ''.join([base_path, '/config/awingu/azure-arm/'])
 
     if not os.path.exists(configs_path):
         os.makedirs(configs_path)
 
-        network_config = {
-            "": {
-                'dnsIp': dns_ip,
-                'ntpServer': '0.europe.pool.ntp.org',
-            }
-        }
-
-        with open(''.join([configs_path, 'network.json']), 'w') as outfile:
-            json.dump(network_config, outfile)
+        create_network_config(base_path, configs_path, args)
+        create_domain_config(base_path, configs_path, args)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Deploy an SGO environment')
     parser.add_argument('--dns', type=str, required=True)
     parser.add_argument('--domain', type=str, required=True)
-    parser.add_argument('--adminpass', type=str, required=True)
+    parser.add_argument('--admin-pass', type=str, required=True)
+    parser.add_argument('--domain-admin', type=str, required=True)
+    parser.add_argument('--domain-pass', type=str, required=True)
     args = parser.parse_args()
 
-    create_configs(args.dns)
+    create_configs(args)
 
     nodes = [DummyNode('awingu', private_ips=[get_ip_address('eth0')])]
 
     params = {
         'username': 'awingu-admin',
-        'password': args.adminpass,
+        'password': args.admin_pass,
         'ssh_patches': False,
         'node_configuration': 'single_node',
         'environment': 'production',
@@ -83,7 +133,7 @@ if __name__ == '__main__':
     logger.info('Installing Awingu')
     install_via_api(params, None, nodes, '')
 
-    # logger.info('Configuring Awingu')
-    # configure_via_api(params, nodes)
+    logger.info('Configuring Awingu')
+    configure_via_api(params, nodes)
 
     logger.info('Your Awingu environment is ready')

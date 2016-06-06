@@ -127,8 +127,10 @@
                     "fileUris": [
                         "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]",
                         "[concat(parameters('baseResourcesUri'), 'api_installer.py')]"
-                    ],
-                    "commandToExecute": "[concat('python setup_awingu.py --dns ', parameters('adServerAddress') ,' --domain ', parameters('domainName'), ' --adminpass ', parameters('awinguAdminPassword'))]"
+                    ]
+                },
+                "protectedSettings": {
+                    "commandToExecute": "[concat('python setup_awingu.py --dns ', parameters('adServerAddress'), ' --domain ', parameters('domainName'), ' --admin-pass ', parameters('awinguAdminPassword'), ' --domain-admin ', parameters('adminUsername'), ' --domain-pass ', parameters('adminPassword'))]"
                 }
             }
         }
