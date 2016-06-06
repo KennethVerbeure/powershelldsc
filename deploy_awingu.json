@@ -125,12 +125,14 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
+                        "[concat(parameters('baseResourcesUri'), 'awingu-license-certificate_99999_all.deb')]",
+                        "[concat(parameters('baseResourcesUri'), 'install_certificate.sh')]",
                         "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]",
                         "[concat(parameters('baseResourcesUri'), 'api_installer.py')]"
                     ]
                 },
                 "protectedSettings": {
-                    "commandToExecute": "[concat('python setup_awingu.py --dns ', parameters('adServerAddress'), ' --domain ', parameters('domainName'), ' --admin-pass ', parameters('awinguAdminPassword'), ' --domain-admin ', parameters('adminUsername'), ' --domain-pass ', parameters('adminPassword'))]"
+                    "commandToExecute": "[concat('sh install_certificate.sh && python setup_awingu.py --dns ', parameters('adServerAddress'), ' --domain ', parameters('domainName'), ' --admin-pass ', parameters('awinguAdminPassword'), ' --domain-admin ', parameters('adminUsername'), ' --domain-pass ', parameters('adminPassword'))]"
                 }
             }
         }
