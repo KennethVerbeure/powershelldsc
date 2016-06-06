@@ -63,7 +63,7 @@ def create_network_config(base_path, configs_path, args):
 
 
 def create_domain_config(base_path, configs_path, args):
-    domain_pieces = args.domain.split['.']
+    domain_pieces = args.domain.split('.')
 
     domain_config = [{
         "name": domain_pieces[0].upper(),
