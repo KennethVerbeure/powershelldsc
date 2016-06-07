@@ -36,7 +36,7 @@ def get_ip_address(ifname):
 
 
 def createBaseDn(domain_pieces):
-    #eg "dc=stack,dc=awingu,dc=com"
+    #eg 'dc=stack,dc=awingu,dc=com'
     baseDn = ''
     first = True
 
@@ -52,7 +52,7 @@ def createBaseDn(domain_pieces):
 
 def create_network_config(base_path, configs_path, args):
     network_config = {
-        "": {
+        '': {
             'dnsIp': args.dns,
             'ntpServer': '0.europe.pool.ntp.org',
         }
@@ -64,30 +64,53 @@ def create_network_config(base_path, configs_path, args):
 
 def create_domain_config(base_path, configs_path, args):
     domain_pieces = args.domain.split('.')
+    domain_name = domain_pieces[0].upper()
 
     domain_config = [{
-        "name": domain_pieces[0].upper(),
-        "fqdn": args.domain,
-        "bindName": args.domain_admin,
-        "bindPassword": args.domain_pass,
-        "dns": args.dns,
-        "hostHeader": "",
-        "isAdmin": True,
-        "netbios": domain_pieces[0].upper(),
-        "userconnector": {
-            "ldap": {
-                "server": args.domain,
-                "baseDn": createBaseDn(domain_pieces)
+        'name': domain_name,
+        'fqdn': args.domain,
+        'bindName': args.domain_admin,
+        'bindPassword': args.domain_pass,
+        'dns': args.dns,
+        'hostHeader': '',
+        'isAdmin': True,
+        'netbios': domain_name,
+        'userconnector': {
+            'ldap': {
+                'server': args.domain,
+                'baseDn': createBaseDn(domain_pieces)
             },
-            "functions": {
-                "createBindName": "builtin.create_domain_bind_name",
-                "findGroups": "builtin.find_groups_by_member_of"
+            'functions': {
+                'createBindName': 'builtin.create_domain_bind_name',
+                'findGroups': 'builtin.find_groups_by_member_of'
             }
         }
     }]
 
     with open(''.join([configs_path, 'domains.json']), 'w') as outfile:
         json.dump(domain_config, outfile)
+
+    create_usergroups_config(base_path, configs_path, domain_name)
+
+
+def create_usergroups_config(base_path, configs_path, domain_name):
+    usergroups_config = {}
+    usergroups_config[domain_name] = {
+        'white_list': [
+            {
+                'isSignInWhiteListed': False,
+                'name': 'Administrators'
+            }
+        ],
+        'flags': {
+            'Administrators': [
+                'admin'
+            ]
+        }
+    }
+
+    with open(''.join([configs_path, 'usergroups.json']), 'w') as outfile:
+        json.dump(usergroups_config, outfile)
 
 
 def create_configs(args):
