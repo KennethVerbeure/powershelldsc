@@ -130,7 +130,7 @@
                         "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]",
                         "[concat(parameters('baseResourcesUri'), 'api_installer.py')]"
                     ],
-                    "commandToExecute": "[concat('sh install_certificate.sh ', parameters('adServerAddress'), ' ', parameters('domainName'), ' \"', parameters('awinguAdminPassword'), '\"', ' \"', parameters('adminUsername'), '\"', ' \"', parameters('adminPassword'), '\"'))]"
+                    "commandToExecute": "[concat('sh install_certificate.sh ', parameters('adServerAddress'), ' ', parameters('domainName'), ' \"', parameters('awinguAdminPassword'), '\"', ' \"', parameters('adminUsername'), '\"', ' \"', parameters('adminPassword'), '\"')]"
                 }
             }
         }
