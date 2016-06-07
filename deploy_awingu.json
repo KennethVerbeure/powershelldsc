@@ -127,32 +127,10 @@
                     "fileUris": [
                         "[concat(parameters('baseResourcesUri'), 'awingu-license-certificate_99999_all.deb')]",
                         "[concat(parameters('baseResourcesUri'), 'install_certificate.sh')]",
-                    ],
-                    "commandToExecute": "sh install_certificate.sh"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(parameters('awinguVmName'), '/setup')]",
-            "apiVersion": "[variables('apiVersion')]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', parameters('awinguVmName'))]"
-            ],
-            "properties": {
-                "publisher": "Microsoft.OSTCExtensions",
-                "type": "CustomScriptForLinux",
-                "typeHandlerVersion": "1.5",
-                "autoUpgradeMinorVersion": true,
-                "settings": {
-                    "fileUris": [
                         "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]",
                         "[concat(parameters('baseResourcesUri'), 'api_installer.py')]"
-                    ]
-                },
-                "protectedSettings": {
-                    "commandToExecute": "[concat('python setup_awingu.py --dns ', parameters('adServerAddress'), ' --domain ', parameters('domainName'), ' --admin-pass ', parameters('awinguAdminPassword'), ' --domain-admin ', parameters('adminUsername'), ' --domain-pass ', parameters('adminPassword'))]"
+                    ],
+                    "commandToExecute": "[concat('sh install_certificate.sh ', parameters('adServerAddress'), ' ', parameters('domainName'), ' \"', parameters('awinguAdminPassword'), '" "', parameters('adminUsername'), '" "', parameters('adminPassword'), '\"'))]"
                 }
             }
         }
