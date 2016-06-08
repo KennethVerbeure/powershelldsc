@@ -3,31 +3,31 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "adminPassword": {
-            "type": "String"
+            "type": "string"
         },
         "adminUsername": {
-            "type": "String"
+            "type": "string"
         },
         "adVmName": {
-            "type": "String"
+            "type": "string"
         },
         "baseResourcesUri": {
-            "type": "String"
+            "type": "string"
         },
         "domainName": {
-            "type": "String"
+            "type": "string"
         },
         "location": {
-            "type": "String"
+            "type": "string"
         },
         "subnetRef": {
-            "type": "String"
+            "type": "string"
         },
         "securityGroup": {
-            "type": "String"
+            "type": "string"
         },
         "vmDiskBaseUri": {
-            "type": "String"
+            "type": "string"
         },
         "winVM": {
             "type": "object"
