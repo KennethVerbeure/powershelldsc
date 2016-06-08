@@ -129,14 +129,26 @@
                         "settings": {
                             "ModulesUrl": "[variables('adModulesURL')]",
                             "ConfigurationFunction": "[variables('adConfigurationFunction')]",
-                            "Properties": {
-                                "DomainName": "[parameters('domainName')]",
-                                "MachineName": "[parameters('adVmName')]",
-                                "AdminCreds": {
-                                    "UserName": "[parameters('adminUsername')]",
-                                    "Password": "PrivateSettingsRef:AdminPassword"
+                            "Properties": [
+                                {
+                                    "Name": "DomainName",
+                                    "Value": "[parameters('domainName')]",
+                                    "TypeName": "System.String"
+                                },
+                                {
+                                    "Name": "MachineName",
+                                    "Value": "[parameters('adVmName')]",
+                                    "TypeName": "System.String"
+                                },
+                                {
+                                    "Name": "AdminCreds",
+                                    "Value": {
+                                        "UserName": "[parameters('adminUsername')]",
+                                        "Password": "PrivateSettingsRef:AdminPassword"
+                                    },
+                                    "TypeName": "System.Management.Automation.PSCredential"
                                 }
-                            }
+                            ]
                         },
                         "protectedSettings": {
                             "Items": {
