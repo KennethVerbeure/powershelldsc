@@ -6,28 +6,28 @@
             "type": "secureString"
         },
         "adminUsername": {
-            "type": "String"
+            "type": "string"
         },
         "adVmName": {
-            "type": "String"
+            "type": "string"
         },
         "baseResourcesUri": {
-            "type": "String"
+            "type": "string"
         },
         "domainName": {
-            "type": "String"
+            "type": "string"
         },
         "location": {
-            "type": "String"
+            "type": "string"
         },
         "subnetRef": {
-            "type": "String"
+            "type": "string"
         },
         "securityGroup": {
-            "type": "String"
+            "type": "string"
         },
         "vmDiskBaseUri": {
-            "type": "String"
+            "type": "string"
         },
         "winVM": {
             "type": "object"
