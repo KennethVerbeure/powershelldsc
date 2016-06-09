@@ -35,7 +35,7 @@
     },
     "variables": {
         "adNicPrefix": "[parameters('adVmName')]",
-        "adModulesURL": "[concat(parameters('baseResourcesUri'), 'CreateADDNS2.ps1.zip')]",
+        "adModulesURL": "[concat(parameters('baseResourcesUri'), 'CreateADDNS.ps1.zip')]",
         "adConfigurationFunction": "CreateADDNS.ps1\\CreateADDNS",
         "apiVersion": "2015-06-15"
     },
