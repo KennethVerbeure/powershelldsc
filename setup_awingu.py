@@ -91,6 +91,10 @@ def create_domain_config(base_path, configs_path, args):
         json.dump(domain_config, outfile)
 
     create_usergroups_config(base_path, configs_path, domain_name)
+    create_labels_config(base_path, configs_path, domain_name)
+    create_drives_config(base_path, configs_path, args, domain_name)
+    create_apps_config(base_path, configs_path, domain_name)
+    create_appserver_config(base_path, configs_path, domain_name)
 
 
 def create_usergroups_config(base_path, configs_path, domain_name):
@@ -113,6 +117,104 @@ def create_usergroups_config(base_path, configs_path, domain_name):
         json.dump(usergroups_config, outfile)
 
 
+def create_labels_config(base_path, configs_path, domain_name):
+    labels_config = {}
+    labels_config[domain_name] = [
+        {
+            'key': 'servergroup',
+            'value': 'win2012'
+        }
+    ]
+
+    with open(''.join([configs_path, 'labels.json']), 'w') as outfile:
+        json.dump(labels_config, outfile)
+
+
+def create_drives_config(base_path, configs_path, args, domain_name):
+    ad_fqdn = '%s.%s' % (args.ad_machine_name, args.domain)
+    drives_config = {}
+    drives_config[domain_name] = [
+        {
+            'authToken': '',
+            'description': 'Home Drive via CIFS',
+            'url': 'smb://%s/Users/<username>/documents' % ad_fqdn,
+            'labels': [],
+            'userLabels': [
+                {
+                    'key': 'all',
+                    'value': ''
+                }
+            ],
+            'unc': '\\\\%s\\users\\<username>\\documents\\<document>' %
+                args.ad_machine_name,
+            'useDomain': False,
+            'backend': 'CIFS',
+            'name': 'Home Drive (CIFS)'
+        }
+    ]
+
+    with open(''.join([configs_path, 'drives.json']), 'w') as outfile:
+        json.dump(drives_config, outfile)
+
+
+def create_apps_config(base_path, configs_path, domain_name):
+    apps_config = {}
+    apps_config[domain_name] = [
+        {
+            'protocol': 'REMOTE-APP',
+            'description': 'Notepad running on Application Server 2010',
+            'serverLabels': [
+                {
+                    'key': 'servergroup',
+                    'value': 'win2012'
+                }
+            ],
+            'labels': [],
+            'workingFolder': '',
+            'userLabels': [
+                {
+                    'key': 'all',
+                    'value': ''
+
+                }
+            ],
+            'command': 'NOTEPAD',
+            'mediaTypes': [],
+            'icon': '',
+            'supportsUnicodeKbd': True,
+            'categories': [],
+            'name': 'Notepad'
+        }
+    ]
+
+    with open(''.join([configs_path, 'apps.json']), 'w') as outfile:
+        json.dump(apps_config, outfile)
+
+
+def create_appserver_config(base_path, configs_path, domain_name):
+    appserver_config = {}
+    appserver_config[domain_name] = [
+        {
+            'description': 'description',
+            'labels': [
+                {
+                    'key': 'servergroup',
+                    'value': 'win2012'
+
+                }
+            ],
+            'enabled': True,
+            'host': '',
+            'maxConnections': 1000,
+            'port': 3389,
+            'name': ''
+        }
+    ]
+
+    with open(''.join([configs_path, 'appservers.json']), 'w') as outfile:
+        json.dump(appserver_config, outfile)
+
+
 def create_configs(args):
     base_path = os.path.dirname(os.path.realpath(__file__))
     configs_path = ''.join([base_path, '/config/awingu/azure-arm/'])
@@ -131,6 +233,7 @@ if __name__ == '__main__':
     parser.add_argument('--admin-pass', type=str, required=True)
     parser.add_argument('--domain-admin', type=str, required=True)
     parser.add_argument('--domain-pass', type=str, required=True)
+    parser.add_argument('--ad-machine-name', type=str, required=True)
     args = parser.parse_args()
 
     create_configs(args)
@@ -142,17 +245,20 @@ if __name__ == '__main__':
             'username': 'awingu-admin',
             'password': args.admin_pass
         },
-        'ssh_patches': False,
         'node_configuration': 'single_node',
         'environment': 'production',
         'repo_url': 'https://repo-pub.awingu.com',
         'invalidate_repo_url': None,
         'apply_changes_after_repo_url_invalidation': True,
         'iaas_stack': 'azure',
-        'network_config': False,
-        'version': '3.1.0',
+        'version': '3.1.1',
         'config_fixtures': 'azure-arm',
-        'vm_basename': 'awingu'
+        'vm_basename': 'awingu',
+        'ssh_patches': False,
+        'import_appservers': True,
+        'import_appserver_blacklist': [
+            '%s.%s' % (args.ad_machine_name, args.domain)
+        ]
     }
 
     logger.info('Installing Awingu')

@@ -710,8 +710,37 @@ def configure_smcapi_component(sess, base_url, uri, component_config,
                  data=json.dumps(new_config))
 
 
+def import_appservers(sess, base_url, uri, component_config, smc_uris, params):
+    domains = component_config.keys()
+    appservers_config = {}
+
+    for domain_name in domains:
+        domain_name = str(domain_name)
+        appservers_config[domain_name] = []
+        appserver_template = component_config[domain_name][0]
+
+        domain = api_call('get', sess, '%s%s%s' %
+            (base_url, smc_uris['domainsUri'], domain_name)).json()
+
+        appservers = api_call('get', sess, '%s%s' %
+            (base_url, domain['appServersUri'])).json()['objects']
+
+        for appserver in appservers:
+            if (appserver['hostName'].lower() in
+                params['import_appserver_blacklist']):
+                continue
+
+            appserver_config = copy.deepcopy(appserver_template)
+            appserver_config['host'] = appserver['hostName']
+            appserver_config['name'] = appserver['name']
+            appserver_config['description'] = appserver['name']
+            appservers_config[domain_name].append(appserver_config)
+
+    configure_multi_item_component(sess, base_url, uri, appservers_config)
+
+
 def configure_component(component, component_config, sess, base_url,
-                        uri, smc_uris):
+                        uri, smc_uris, params):
     logger.info('  --> Configuring %s', component)
     if component == 'domains':
         configure_domains(sess, base_url, uri, component_config)
@@ -719,11 +748,13 @@ def configure_component(component, component_config, sess, base_url,
         configure_features(sess, base_url, uri, component_config)
     elif component == 'usergroups':
         configure_usergroups(sess, base_url, component_config, smc_uris)
+    elif component == 'appservers' and params.get('import_appservers'):
+        import_appservers(sess, base_url, uri, component_config, smc_uris,
+                          params)
     elif uri.startswith('/smc-api'):
         configure_smcapi_component(sess, base_url, uri, component_config)
     else:
-        configure_multi_item_component(sess, base_url, uri,
-                                       component_config)
+        configure_multi_item_component(sess, base_url, uri, component_config)
 
 
 def configure_smc(sess, base_url, smc_uris, params):
@@ -741,7 +772,7 @@ def configure_smc(sess, base_url, smc_uris, params):
                                                 params.get('extra_config'))
         if component_config:
             configure_component(component, component_config, sess, base_url,
-                                uri, smc_uris)
+                                uri, smc_uris, params)
 
 
 def invalidate_reposerver(sess, base_url, smc_uris):

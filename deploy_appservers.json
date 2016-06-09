@@ -3,34 +3,34 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "adminPassword": {
-            "type": "String"
+            "type": "secureString"
         },
         "adminUsername": {
-            "type": "String"
+            "type": "string"
         },
         "appServerName": {
-            "type": "String"
+            "type": "string"
         },
         "baseResourcesUri": {
-            "type": "String"
+            "type": "string"
         },
         "domainName": {
-            "type": "String"
+            "type": "string"
         },
         "adServerAddress": {
-            "type": "String"
+            "type": "string"
         },
         "location": {
-            "type": "String"
+            "type": "string"
         },
         "subnetRef": {
-            "type": "String"
+            "type": "string"
         },
         "securityGroup": {
-            "type": "String"
+            "type": "string"
         },
         "vmDiskBaseUri": {
-            "type": "String"
+            "type": "string"
         },
         "winVM": {
             "type": "object"
@@ -129,23 +129,39 @@
                         "type": "DSC",
                         "typeHandlerVersion": "2.14",
                         "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "ModulesUrl": "[variables('appModulesURL')]",
-                            "ConfigurationFunction": "[variables('appConfigurationFunction')]",
-                            "Properties": {
-                                "DnsServerAddress": "[parameters('adServerAddress')]",
-                                "DomainName": "[parameters('domainName')]",
-                                "MachineName": "[parameters('appServerName')]",
-                                "AdminCreds": {
-                                    "UserName": "[parameters('adminUsername')]",
-                                    "Password": "PrivateSettingsRef:AdminPassword"
-                                }
-                            }
-                        },
                         "protectedSettings": {
                             "Items": {
                                 "AdminPassword": "[parameters('adminPassword')]"
                             }
+                        },
+                        "settings": {
+                            "ModulesUrl": "[variables('appModulesURL')]",
+                            "ConfigurationFunction": "[variables('appConfigurationFunction')]",
+                            "Properties": [
+                                {
+                                    "Name": "AdminCreds",
+                                    "value": {
+                                        "UserName": "[parameters('adminUsername')]",
+                                        "Password": "PrivateSettingsRef:AdminPassword"
+                                    },
+                                    "TypeName": "System.Management.Automation.PSCredential"
+                                },
+                                {
+                                  "Name": "DomainName",
+                                  "Value": "[parameters('domainName')]",
+                                  "TypeName": "System.String"
+                                },
+                                {
+                                  "Name": "MachineName",
+                                  "Value": "[parameters('adVmName')]",
+                                  "TypeName": "System.String"
+                                },
+                                {
+                                  "Name": "DnsServerAddress",
+                                  "Value": "[parameters('adServerAddress')]",
+                                  "TypeName": "System.String"
+                                }
+                            ]
                         }
                     }
                 }
