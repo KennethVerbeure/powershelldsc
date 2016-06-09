@@ -126,22 +126,34 @@
                         "type": "DSC",
                         "typeHandlerVersion": "2.14",
                         "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "ModulesUrl": "[variables('adModulesURL')]",
-                            "ConfigurationFunction": "[variables('adConfigurationFunction')]",
-                            "Properties": {
-                                "DomainName": "[parameters('domainName')]",
-                                "MachineName": "[parameters('adVmName')]",
-                                "AdminCreds": {
-                                    "UserName": "[parameters('adminUsername')]",
-                                    "Password": "PrivateSettingsRef:AdminPassword"
-                                }
-                            }
-                        },
                         "protectedSettings": {
                             "Items": {
                                 "AdminPassword": "[parameters('adminPassword')]"
                             }
+                        },
+                        "settings": {
+                            "ModulesUrl": "[variables('adModulesURL')]",
+                            "ConfigurationFunction": "[variables('adConfigurationFunction')]",
+                            "Properties": [
+                                {
+                                    "Name": "AdminCreds",
+                                    "value": {
+                                        "UserName": "[parameters('adminUsername')]",
+                                        "Password": "PrivateSettingsRef:AdminPassword"
+                                    },
+                                    "TypeName": "System.Management.Automation.PSCredential"
+                                },
+                                {
+                                  "Name": "DomainName",
+                                  "Value": "[parameters('domainName')]",
+                                  "TypeName": "System.String"
+                                },
+                                {
+                                  "Name": "MachineName",
+                                  "Value": "[parameters('adVmName')]",
+                                  "TypeName": "System.String"
+                                }
+                            ]
                         }
                     }
                 }
