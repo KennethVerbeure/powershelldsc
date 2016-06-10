@@ -3,40 +3,43 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "adminPassword": {
-            "type": "String"
+            "type": "secureString"
         },
         "adminUsername": {
-            "type": "String"
+            "type": "string"
         },
         "awinguVmName": {
-            "type": "String"
+            "type": "string"
         },
         "baseResourcesUri": {
-            "type": "String"
+            "type": "string"
         },
         "location": {
-            "type": "String"
+            "type": "string"
         },
         "subnetRef": {
-            "type": "String"
+            "type": "string"
         },
         "securityGroup": {
-            "type": "String"
+            "type": "string"
         },
         "vmDiskBaseUri": {
-            "type": "String"
+            "type": "string"
         },
         "awinguVM": {
             "type": "object"
         },
         "adServerAddress": {
-            "type": "String"
+            "type": "string"
         },
         "domainName": {
-            "type": "String"
+            "type": "string"
         },
         "awinguAdminPassword": {
-            "type": "String"
+            "type": "secureString"
+        },
+        "adVmName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -130,7 +133,7 @@
                         "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]",
                         "[concat(parameters('baseResourcesUri'), 'api_installer.py')]"
                     ],
-                    "commandToExecute": "[concat('sh install_certificate.sh ', parameters('adServerAddress'), ' ', parameters('domainName'), ' \"', parameters('awinguAdminPassword'), '\"', ' \"', parameters('adminUsername'), '\"', ' \"', parameters('adminPassword'), '\"')]"
+                    "commandToExecute": "[concat('sh install_certificate.sh ', parameters('adServerAddress'), ' ', parameters('domainName'), ' \"', parameters('awinguAdminPassword'), '\"', ' \"', parameters('adminUsername'), '\"', ' \"', parameters('adminPassword'), '\"', ' \"', parameters('adVmName'), '\"')]"
                 }
             }
         }
