@@ -11,16 +11,51 @@
                 "osPlatform": "Windows"
             },
             {
-            "name": "adminPassword",
-            "type": "Microsoft.Compute.CredentialsCombo",
-            "label": {
-                "password": "Password",
-                "confirmPassword": "Confirm password"
+                "name": "adminPassword",
+                "type": "Microsoft.Compute.CredentialsCombo",
+                "label": {
+                    "password": "Password",
+                    "confirmPassword": "Confirm password"
+                },
+                "toolTip": {
+                    "password": "Admin password for the virtual machines."
+                },
+                "osPlatform": "Windows"
             },
-            "toolTip": {
-                "password": "Admin password for the virtual machines."
+            {
+                "name": "element1",
+                "type": "Microsoft.Network.VirtualNetworkCombo",
+                "label": {
+                    "virtualNetwork": "Virtual network",
+                    "subnets": "Subnets"
+                },
+                "toolTip": {
+                    "virtualNetwork": "",
+                    "subnets": ""
+                },
+                "defaultValue": {
+                    "name": "vnet01",
+                    "addressPrefixSize": "/16"
+                },
+                "constraints": {
+                    "minAddressPrefixSize": "/16"
+                },
+                "options": {
+                    "hideExisting": false
+                },
+                "subnets": {
+                    "subnet": {
+                        "label": "Subnet"
+                    }
+                }
             },
-            "osPlatform": "Windows"
+            {
+                "name": "storageAccount",
+                "type": "Microsoft.Storage.StorageAccountSelector",
+                "label": "Storage account",
+                "defaultValue": {
+                    "type": "Standard_LRS"
+                }
             }
         ],
         "steps": [
@@ -34,85 +69,11 @@
                 "bladeTitle": "Infrastructure settings",
                 "elements": [
                     {
-                        "name": "VmCount",
-                        "type": "Microsoft.Common.DropDown",
-                        "label": "Number of VMs",
-                        "defaultValue": "2",
-                        "toolTip": "",
-                        "constraints": {
-                            "allowedValues": [
-                                {
-                                    "label": "2",
-                                    "value": 2
-                                },
-                                {
-                                    "label": "4",
-                                    "value": 4
-                                },
-                                {
-                                    "label": "8",
-                                    "value": 8
-                                },
-                                {
-                                    "label": "16",
-                                    "value": 16
-                                }
-                            ]
-                        }
-                    },
-                    {
                         "name": "storageAccount",
                         "type": "Microsoft.Storage.StorageAccountSelector",
                         "label": "Storage account",
                         "defaultValue": {
                             "type": "Standard_LRS"
-                        }
-                    },
-                    {
-                        "name": "vmSize",
-                        "type": "Microsoft.Compute.SizeSelector",
-                        "label": "Virtual machine size",
-                        "toolTip": "The size of the virtual machine for the domain controller.",
-                        "recommendedSizes": [
-                            "Standard_D1",
-                            "Standard_D2",
-                            "Standard_D3"
-                        ],
-                        "constraints": {
-                            "allowedSizes": [
-                                "Standard_D1",
-                                "Standard_D2",
-                                "Standard_D3",
-                                "Standard_D4",
-                                "Standard_D11",
-                                "Standard_D12",
-                                "Standard_D13",
-                                "Standard_D14"
-                            ]
-                        },
-                        "osPlatform": "Windows",
-                        "imageReference": {
-                        "publisher": "MicrosoftWindowsServer",
-                            "offer": "WindowsServer",
-                            "sku": "2012-R2-Datacenter"
-                        },
-                        "count": "[steps('infrastructureConfig').vmCount]"
-                    },
-                    {
-                        "name": "dnsAndPublicIP",
-                        "type": "Microsoft.Network.PublicIpAddressCombo",
-                        "label": {
-                            "publicIpAddress": "Public IP address",
-                            "domainNameLabel": "DNS Prefix"
-                        },
-                        "toolTip": {
-                            "domainNameLabel": "DNS Prefix for the VM public IP addresses."
-                        },
-                        "defaultValue": {
-                            "publicIpAddressName": "publicIP"
-                        },
-                        "options": {
-                            "hideNone": true
                         }
                     }
                 ]
