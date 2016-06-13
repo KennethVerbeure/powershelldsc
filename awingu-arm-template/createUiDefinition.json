@@ -21,6 +21,50 @@
                     "password": "Admin password for the virtual machines."
                 },
                 "osPlatform": "Windows"
+            },
+            {
+                "name": "element1",
+                "type": "Microsoft.Network.VirtualNetworkCombo",
+                "label": {
+                    "virtualNetwork": "Virtual network",
+                    "subnets": "Subnets"
+                },
+                "toolTip": {
+                    "virtualNetwork": "",
+                    "subnets": ""
+                },
+                "defaultValue": {
+                    "name": "vnet01",
+                    "addressPrefixSize": "/16"
+                },
+                "constraints": {
+                    "minAddressPrefixSize": "/16"
+                },
+                "options": {
+                    "hideExisting": false
+                },
+                "subnets": {
+                    "subnet": {
+                        "label": "Subnet",
+                        "defaultValue": {
+                            "name": "subnet",
+                            "addressPrefixSize": "/24"
+                        },
+                        "constraints": {
+                            "minAddressPrefixSize": "/24",
+                            "minAddressCount": 12,
+                            "requireContiguousAddresses": true
+                        }
+                    }
+                }
+            },
+            {
+                "name": "storageAccount",
+                "type": "Microsoft.Storage.StorageAccountSelector",
+                "label": "Storage account",
+                "defaultValue": {
+                    "type": "Standard_LRS"
+                }
             }
         ],
         "steps": [
@@ -39,6 +83,53 @@
                         "label": "Storage account",
                         "defaultValue": {
                             "type": "Standard_LRS"
+                        }
+                    },
+                    {
+                        "name": "vmSize",
+                        "type": "Microsoft.Compute.SizeSelector",
+                        "label": "Virtual machine size",
+                        "toolTip": "The size of the virtual machine for the domain controller.",
+                        "recommendedSizes": [
+                            "Standard_D1",
+                            "Standard_D2",
+                            "Standard_D3"
+                        ],
+                        "constraints": {
+                            "allowedSizes": [
+                                "Standard_D1",
+                                "Standard_D2",
+                                "Standard_D3",
+                                "Standard_D4",
+                                "Standard_D11",
+                                "Standard_D12",
+                                "Standard_D13",
+                                "Standard_D14"
+                            ]
+                        },
+                        "osPlatform": "Windows",
+                        "imageReference": {
+                            "publisher": "MicrosoftWindowsServer",
+                            "offer": "WindowsServer",
+                            "sku": "2012-R2-Datacenter"
+                        },
+                        "count": "[steps('infrastructureConfig').vmCount]"
+                    },
+                    {
+                        "name": "dnsAndPublicIP",
+                        "type": "Microsoft.Network.PublicIpAddressCombo",
+                        "label": {
+                            "publicIpAddress": "Public IP address",
+                            "domainNameLabel": "DNS Prefix"
+                        },
+                        "toolTip": {
+                            "domainNameLabel": "DNS Prefix for the VM public IP addresses."
+                        },
+                        "defaultValue": {
+                            "publicIpAddressName": "publicIP"
+                        },
+                        "options": {
+                            "hideNone": true
                         }
                     }
                 ]
