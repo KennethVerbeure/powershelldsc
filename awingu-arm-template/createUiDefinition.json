@@ -21,6 +21,50 @@
                     "password": "Admin password for the virtual machines."
                 },
                 "osPlatform": "Windows"
+            },
+            {
+                "name": "element1",
+                "type": "Microsoft.Network.VirtualNetworkCombo",
+                "label": {
+                    "virtualNetwork": "Virtual network",
+                    "subnets": "Subnets"
+                },
+                "toolTip": {
+                    "virtualNetwork": "",
+                    "subnets": ""
+                },
+                "defaultValue": {
+                    "name": "vnet01",
+                    "addressPrefixSize": "/16"
+                },
+                "constraints": {
+                    "minAddressPrefixSize": "/16"
+                },
+                "options": {
+                    "hideExisting": false
+                },
+                "subnets": {
+                    "subnet": {
+                        "label": "Subnet",
+                        "defaultValue": {
+                            "name": "subnet",
+                            "addressPrefixSize": "/24"
+                        },
+                        "constraints": {
+                            "minAddressPrefixSize": "/24",
+                            "minAddressCount": 12,
+                            "requireContiguousAddresses": true
+                        }
+                    }
+                }
+            },
+            {
+                "name": "storageAccount",
+                "type": "Microsoft.Storage.StorageAccountSelector",
+                "label": "Storage account",
+                "defaultValue": {
+                    "type": "Standard_LRS"
+                }
             }
         ],
         "steps": [
