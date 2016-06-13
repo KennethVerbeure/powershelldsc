@@ -45,7 +45,12 @@
                 },
                 "subnets": {
                     "subnet": {
-                        "label": "Subnet"
+                        "label": "Subnet",
+                        "constraints": {
+                            "minAddressPrefixSize": "/24",
+                            "minAddressCount": 12,
+                            "requireContiguousAddresses": true
+                        }
                     }
                 }
             },
