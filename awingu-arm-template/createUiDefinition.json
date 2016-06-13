@@ -46,6 +46,10 @@
                 "subnets": {
                     "subnet": {
                         "label": "Subnet",
+                        "defaultValue": {
+                            "name": "subnet",
+                            "addressPrefixSize": "/24"
+                        },
                         "constraints": {
                             "minAddressPrefixSize": "/24",
                             "minAddressCount": 12,
