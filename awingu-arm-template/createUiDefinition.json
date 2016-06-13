@@ -96,6 +96,56 @@
                         "constraints": {
                             "required": true
                         }
+                    },
+                    {
+                        "name": "adVmName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Active Directory vm name",
+                        "toolTip": "Active directory vm name",
+                        "constraints": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "name": "appServerVmBaseName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Appserver vm base name",
+                        "toolTip": "Appserver vm base name",
+                        "constraints": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "name": "appServerCount",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Appserver count",
+                        "defaultValue": "1",
+                        "toolTip": "Amount of appservers to deploy.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^[0-9]+$",
+                            "validationMessage": "Only numeric characters are allowed"
+                        }
+                    }
+                    {
+                        "name": "awinguVmName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Awingu vm name",
+                        "toolTip": "Awingu vm name",
+                        "constraints": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "name": "awinguAdminPassword",
+                        "type": "Microsoft.Common.PasswordBox",
+                        "label": {
+                            "password": "Awingu admin Password",
+                            "confirmPassword": "Confirm password"
+                        },
+                        "toolTip": {
+                            "password": "Admin password for Awingu admin"
+                        }
                     }
                 ]
             }
@@ -108,7 +158,12 @@
             "existingVirtualNetwerkResourceGroup": "[steps('infrastructureConfig').virtualNetwork.resourceGroup]",
             "existingVirtualNetwerkResource": "[steps('infrastructureConfig').virtualNetwork.name]",
             "subnetRef": "[steps('infrastructureConfig').virtualNetwork.subnets.subnet.name]",
-            "domainName": "[steps('awinguEnvConfig').domainName]"
+            "domainName": "[steps('awinguEnvConfig').domainName]",
+            "adVmName": "[steps('awinguEnvConfig').adVmName]",
+            "appServerVmBaseName": "[steps('awinguEnvConfig').appServerVmBaseName]",
+            "appServerCount": "[steps('awinguEnvConfig').appServerCount]",
+            "awinguVmName": "[steps('awinguEnvConfig').awinguVmName]",
+            "awinguAdminPassword": "[steps('awinguEnvConfig').awinguAdminPassword]"
         }
     }
 }
