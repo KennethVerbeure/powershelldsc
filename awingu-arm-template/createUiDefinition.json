@@ -42,50 +42,59 @@
                         }
                     },
                     {
-                        "name": "vmSize",
-                        "type": "Microsoft.Compute.SizeSelector",
-                        "label": "Virtual machine size",
-                        "toolTip": "The size of the virtual machine for the domain controller.",
-                        "recommendedSizes": [
-                            "Standard_D1",
-                            "Standard_D2",
-                            "Standard_D3"
-                        ],
-                        "constraints": {
-                            "allowedSizes": [
-                                "Standard_D1",
-                                "Standard_D2",
-                                "Standard_D3",
-                                "Standard_D4",
-                                "Standard_D11",
-                                "Standard_D12",
-                                "Standard_D13",
-                                "Standard_D14"
-                            ]
-                        },
-                        "osPlatform": "Windows",
-                        "imageReference": {
-                            "publisher": "MicrosoftWindowsServer",
-                            "offer": "WindowsServer",
-                            "sku": "2012-R2-Datacenter"
-                        },
-                        "count": "[steps('infrastructureConfig').vmCount]"
-                    },
-                    {
-                        "name": "dnsAndPublicIP",
-                        "type": "Microsoft.Network.PublicIpAddressCombo",
+                        "name": "virtualNetwork",
+                        "type": "Microsoft.Network.VirtualNetworkCombo",
                         "label": {
-                            "publicIpAddress": "Public IP address",
-                            "domainNameLabel": "DNS Prefix"
+                            "virtualNetwork": "Virtual network",
+                            "subnets": "Subnets"
                         },
                         "toolTip": {
-                            "domainNameLabel": "DNS Prefix for the VM public IP addresses."
+                            "virtualNetwork": "",
+                            "subnets": ""
                         },
                         "defaultValue": {
-                            "publicIpAddressName": "publicIP"
+                            "name": "vnet01",
+                            "addressPrefixSize": "/16"
+                        },
+                        "constraints": {
+                            "minAddressPrefixSize": "/16"
                         },
                         "options": {
-                            "hideNone": true
+                            "hideExisting": false
+                        },
+                        "subnets": {
+                            "subnet": {
+                                "label": "Subnet",
+                                "defaultValue": {
+                                    "name": "subnet",
+                                    "addressPrefixSize": "/24"
+                                },
+                                "constraints": {
+                                    "minAddressPrefixSize": "/24",
+                                    "minAddressCount": 12,
+                                    "requireContiguousAddresses": true
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "awinguEnvConfig",
+                "label": "Awingu configuration",
+                "subLabel": {
+                    "preValidation": "Configure the Awingu environment",
+                    "postValidation": "Done"
+                },
+                "bladeTitle": "Awingu Configuration",
+                "elements": [
+                    {
+                        "name": "domainName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Domain name",
+                        "toolTip": "Active directory domain",
+                        "constraints": {
+                            "required": true
                         }
                     }
                 ]
@@ -95,17 +104,11 @@
             "location": "[location()]",
             "adminUsername": "[basics('adminUsername')]",
             "adminPassword": "[basics('adminPassword')]",
-            "storageAccountNewOrExisting": "[steps('infrastructureConfig').storageAccount.newOrExisting]",
-            "StorageAccountName": "[steps('infrastructureConfig').storageAccount.name]",
-            "storageAccountType": "[steps('infrastructureConfig').storageAccount.type]",
-            "existingStorageAccountRG": "[steps('infrastructureConfig').storageAccount.resourceGroup]",
-            "domainName": "[steps('infrastructureConfig').domainName]",
-            "vmSize": "[steps('infrastructureConfig').vmSize]",
-            "vmCount": "[steps('infrastructureConfig').vmCount]",
-            "publicIPAddressName": "[steps('infrastructureConfig').DnsAndPublicIP.name]",
-            "dnsNameForPublicIP": "[steps('infrastructureConfig').dnsAndPublicIP.domainNameLabel]",
-            "existingIPRGName": "[steps('infrastructureConfig').dnsAndPublicIP.resourceGroup]",
-            "publicIPNewOrExisting": "[steps('infrastructureConfig').dnsAndPublicIP.newOrExistingOrNone]"
+            "storageAccountName": "[steps('infrastructureConfig').storageAccount.name]",
+            "existingVirtualNetwerkResourceGroup": "[steps('infrastructureConfig').virtualNetwork.resourceGroup]",
+            "existingVirtualNetwerkResource": "[steps('infrastructureConfig').virtualNetwork.name]",
+            "subnetRef": "[steps('infrastructureConfig').virtualNetwork.subnets.subnet.name]",
+            "domainName": "[steps('awinguEnvConfig').domainName]"
         }
     }
 }
