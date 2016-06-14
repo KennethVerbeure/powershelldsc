@@ -126,7 +126,7 @@
                             "regex": "^[0-9]+$",
                             "validationMessage": "Only numeric characters are allowed"
                         }
-                    }
+                    },
                     {
                         "name": "awinguVmName",
                         "type": "Microsoft.Common.TextBox",
