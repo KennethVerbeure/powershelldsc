@@ -100,7 +100,6 @@
                     },
                     "osDisk": {
                         "name": "osdisk",
-                        "osType": "Linux",
                         "vhd": {
                             "uri": "[concat(parameters('vmDiskBaseUri'), parameters('awinguVmName'),'-osdisk.vhd')]"
                         },
