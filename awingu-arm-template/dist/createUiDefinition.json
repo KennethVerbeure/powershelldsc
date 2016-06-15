@@ -132,10 +132,7 @@
             "existingVirtualNetwerkResource": "[steps('infrastructureConfig').virtualNetwork.name]",
             "subnetRef": "[steps('infrastructureConfig').virtualNetwork.subnets.subnet.name]",
             "domainName": "[steps('awinguEnvConfig').domainName]",
-            "adVmName": "[steps('awinguEnvConfig').adVmName]",
-            "appServerVmBaseName": "[steps('awinguEnvConfig').appServerVmBaseName]",
             "appServerCount": "[steps('awinguEnvConfig').appServerCount]",
-            "awinguVmName": "[steps('awinguEnvConfig').awinguVmName]",
             "awinguAdminPassword": "[steps('awinguEnvConfig').awinguAdminPassword]"
         }
     }
