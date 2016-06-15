@@ -57,7 +57,7 @@
         "location": "[resourceGroup().location]",
         "vnetId": "[resourceId(parameters('existingVirtualNetwerkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('existingVirtualNetwerkResource'))]",
         "subnetRef": "[concat(variables('vnetId'),'/subnets/', parameters('subnetName'))]",
-        "baseResourcesUri": "https://raw.githubusercontent.com/KennethVerbeure/powershelldsc/master/",
+        "baseResourcesUri": "https://raw.githubusercontent.com/KennethVerbeure/powershelldsc/master//awingu-arm-template/dist/",
         "vmDiskBaseUri": "[concat('http://', parameters('storageAccountName'),'.blob.core.windows.net/vhds/')]"
     },
     "resources": [
