@@ -138,7 +138,8 @@
                         "[concat(parameters('baseResourcesUri'), 'awingu-license-certificate_99999_all.deb')]",
                         "[concat(parameters('baseResourcesUri'), 'install_certificate.sh')]",
                         "[concat(parameters('baseResourcesUri'), 'setup_awingu.py')]",
-                        "[concat(parameters('baseResourcesUri'), 'api_installer.py')]"
+                        "[concat(parameters('baseResourcesUri'), 'api_installer.py')]",
+                        "[concat(parameters('baseResourcesUri'), 'notepad.png')]"
                     ],
                     "commandToExecute": "[concat('sh install_certificate.sh ', parameters('adServerAddress'), ' ', parameters('domainName'), ' \"', parameters('awinguAdminPassword'), '\"', ' \"', parameters('adminUsername'), '\"', ' \"', parameters('adminPassword'), '\"', ' \"', parameters('adVmName'), '\"')]"
                 }
