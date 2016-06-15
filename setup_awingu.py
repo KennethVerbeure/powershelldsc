@@ -7,6 +7,8 @@ import os
 import json
 import argparse
 
+from shutil import copyfile
+
 from api_installer import install_via_api, configure_via_api
 
 logger = logging.getLogger('deploy_awingu')
@@ -145,7 +147,7 @@ def create_drives_config(base_path, configs_path, args, domain_name):
                     'value': ''
                 }
             ],
-            'unc': '\\\\%s\\users\\<username>\\documents\\<document>' %
+            'unc': '\\\\%s\\Users\\<username>\\documents\\<document>' %
                 args.ad_machine_name,
             'useDomain': False,
             'backend': 'CIFS',
@@ -179,8 +181,10 @@ def create_apps_config(base_path, configs_path, domain_name):
                 }
             ],
             'command': 'NOTEPAD',
-            'mediaTypes': [],
-            'icon': '',
+            'mediaTypes': [
+                'text/plain'
+            ],
+            'icon': 'notepad.png',
             'supportsUnicodeKbd': True,
             'categories': [],
             'name': 'Notepad'
@@ -226,6 +230,16 @@ def create_configs(args):
         create_domain_config(base_path, configs_path, args)
 
 
+def setup_icons():
+    base_path = os.path.dirname(os.path.realpath(__file__))
+    icons_path = ''.join([base_path, '/icons/'])
+
+    if not os.path.exists(icons_path):
+        os.makedirs(icons_path)
+
+        copyfile('%s/notepad.png' % base_path, '%s/notepad.png' % icons_path)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Deploy an SGO environment')
     parser.add_argument('--dns', type=str, required=True)
@@ -237,6 +251,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     create_configs(args)
+    setup_icons()
 
     nodes = [DummyNode('awingu', private_ips=[get_ip_address('eth0')])]
 
