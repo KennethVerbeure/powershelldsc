@@ -1,0 +1,210 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "defaultValue": "pythondeploy",
+            "type": "string"
+        },
+        "existingVirtualNetwerkResourceGroup": {
+            "defaultValue": "qazureng",
+            "type": "string"
+        },
+        "existingVirtualNetwerkResource": {
+            "defaultValue": "qazureng",
+            "type": "string"
+        },
+        "subnetName": {
+            "defaultValue": "azure-python",
+            "type": "string"
+        },
+        "appServerCount": {
+            "defaultValue": 1,
+            "type": "int"
+        },
+        "domainName": {
+            "defaultValue": "test.local",
+            "type": "string"
+        },
+        "adminUsername": {
+            "defaultValue": "kenneth",
+            "type": "string"
+        },
+        "adminPassword": {
+            "type": "secureString"
+        },
+        "awinguAdminPassword": {
+            "type": "secureString"
+        }
+    },
+    "variables": {
+        "apiVersion": "2016-02-01",
+        "winVM": {
+            "vmSize": "Standard_D2_v2",
+            "imageSKU": "2012-R2-Datacenter",
+            "imagePublisher": "MicrosoftWindowsServer",
+            "imageOffer": "WindowsServer"
+        },
+        "awinguVM": {
+            "vmSize": "Standard_D2",
+            "imageSKU": "az0-000c-01c",
+            "imagePublisher": "awingu",
+            "imageOffer": "awingu"
+        },
+        "adVmName": "awingu-ad",
+        "appServerVmBaseName": "awingu-app",
+        "awinguVmName": "awingu-vm",
+        "location": "[resourceGroup().location]",
+        "vnetId": "[resourceId(parameters('existingVirtualNetwerkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('existingVirtualNetwerkResource'))]",
+        "subnetRef": "[concat(variables('vnetId'),'/subnets/', parameters('subnetName'))]",
+        "baseResourcesUri": "https://raw.githubusercontent.com/KennethVerbeure/powershelldsc/master/",
+        "vmDiskBaseUri": "[concat('http://', parameters('storageAccountName'),'.blob.core.windows.net/vhds/')]"
+    },
+    "resources": [
+        {
+            "apiVersion": "[variables('apiVersion')]",
+            "name": "deployadserver",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('baseResourcesUri'), 'deploy_ad.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adVmName": {
+                        "value": "[variables('adVmName')]"
+                    },
+                    "baseResourcesUri": {
+                        "value": "[variables('baseResourcesUri')]"
+                    },
+                    "domainName": {
+                        "value": "[parameters('domainName')]"
+                    },
+                    "location": {
+                        "value": "[variables('location')]"
+                    },
+                    "subnetRef": {
+                        "value": "[variables('subnetRef')]"
+                    },
+                    "vmDiskBaseUri": {
+                        "value": "[variables('vmDiskBaseUri')]"
+                    },
+                    "winVM": {
+                        "value": "[variables('winVM')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "[variables('apiVersion')]",
+            "name": "[concat('deployappserver', '-', copyIndex())]",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'deployadserver')]"
+            ],
+            "copy": {
+                "name": "appservercopy",
+                "count": "[parameters('appServerCount')]"
+            },
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('baseResourcesUri'), 'deploy_appservers.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "appServerName": {
+                        "value": "[concat(variables('appServerVmBaseName'), '-', copyIndex())]"
+                    },
+                    "baseResourcesUri": {
+                        "value": "[variables('baseResourcesUri')]"
+                    },
+                    "domainName": {
+                        "value": "[parameters('domainName')]"
+                    },
+                    "adServerAddress": {
+                        "value": "[reference('deployadserver').outputs.adServerAddress.value]"
+                    },
+                    "location": {
+                        "value": "[variables('location')]"
+                    },
+                    "subnetRef": {
+                        "value": "[variables('subnetRef')]"
+                    },
+                    "vmDiskBaseUri": {
+                        "value": "[variables('vmDiskBaseUri')]"
+                    },
+                    "winVM": {
+                        "value": "[variables('winVM')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "[variables('apiVersion')]",
+            "name": "deployawingu",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'deployappserver-0')]"
+            ],
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('baseResourcesUri'), 'deploy_awingu.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "awinguVmName": {
+                        "value": "[variables('awinguVmName')]"
+                    },
+                    "baseResourcesUri": {
+                        "value": "[variables('baseResourcesUri')]"
+                    },
+                    "location": {
+                        "value": "[variables('location')]"
+                    },
+                    "subnetRef": {
+                        "value": "[variables('subnetRef')]"
+                    },
+                    "vmDiskBaseUri": {
+                        "value": "[variables('vmDiskBaseUri')]"
+                    },
+                    "awinguVM": {
+                        "value": "[variables('awinguVM')]"
+                    },
+                    "adServerAddress": {
+                        "value": "[reference('deployadserver').outputs.adServerAddress.value]"
+                    },
+                    "domainName": {
+                        "value": "[parameters('domainName')]"
+                    },
+                    "awinguAdminPassword": {
+                        "value": "[parameters('awinguAdminPassword')]"
+                    },
+                    "adVmName": {
+                        "value": "[variables('adVmName')]"
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,163 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminPassword": {
+            "type": "secureString"
+        },
+        "adminUsername": {
+            "type": "string"
+        },
+        "adVmName": {
+            "type": "string"
+        },
+        "baseResourcesUri": {
+            "type": "string"
+        },
+        "domainName": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        },
+        "subnetRef": {
+            "type": "string"
+        },
+        "vmDiskBaseUri": {
+            "type": "string"
+        },
+        "winVM": {
+            "type": "object"
+        }
+    },
+    "variables": {
+        "adNicPrefix": "[parameters('adVmName')]",
+        "adModulesURL": "[concat(parameters('baseResourcesUri'), 'CreateADDNS.ps1.zip')]",
+        "adConfigurationFunction": "CreateADDNS.ps1\\CreateADDNS",
+        "apiVersion": "2015-06-15"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[variables('adNicPrefix')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "displayName": "AD_NetworkInterface"
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[parameters('subnetRef')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('adVmName')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('adNicPrefix'))]"
+            ],
+            "tags": {
+                "displayName": "AD_vm_resource"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('winVM').vmSize]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('adVmName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('winVM').imagePublisher]",
+                        "offer": "[parameters('winVM').imageOffer]",
+                        "sku": "[parameters('winVM').imageSKU]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "osdisk",
+                        "vhd": {
+                            "uri": "[concat(parameters('vmDiskBaseUri'), parameters('adVmName'),'-osdisk.vhd')]"
+                        },
+                        "caching": "None",
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "properties": {
+                                "primary": "true"
+                            },
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('adNicPrefix'))]"
+                        }
+                    ]
+                }
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "name": "[concat(parameters('adVmName'),'/CreateADForest')]",
+                    "apiVersion": "[variables('apiVersion')]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('adVmName'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Powershell",
+                        "type": "DSC",
+                        "typeHandlerVersion": "2.14",
+                        "autoUpgradeMinorVersion": true,
+                        "protectedSettings": {
+                            "Items": {
+                                "AdminPassword": "[parameters('adminPassword')]"
+                            }
+                        },
+                        "settings": {
+                            "ModulesUrl": "[variables('adModulesURL')]",
+                            "ConfigurationFunction": "[variables('adConfigurationFunction')]",
+                            "Properties": [
+                                {
+                                    "Name": "AdminCreds",
+                                    "value": {
+                                        "UserName": "[parameters('adminUsername')]",
+                                        "Password": "PrivateSettingsRef:AdminPassword"
+                                    },
+                                    "TypeName": "System.Management.Automation.PSCredential"
+                                },
+                                {
+                                  "Name": "DomainName",
+                                  "Value": "[parameters('domainName')]",
+                                  "TypeName": "System.String"
+                                },
+                                {
+                                  "Name": "MachineName",
+                                  "Value": "[parameters('adVmName')]",
+                                  "TypeName": "System.String"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "outputs": {
+        "adServerAddress": {
+            "value": "[reference(concat('Microsoft.Network/networkInterfaces/', variables('adNicPrefix'))).ipConfigurations[0].properties.privateIPAddress]",
+            "type": "String"
+        }
+    }
+}

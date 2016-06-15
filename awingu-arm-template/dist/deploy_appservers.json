@@ -1,0 +1,165 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminPassword": {
+            "type": "secureString"
+        },
+        "adminUsername": {
+            "type": "string"
+        },
+        "appServerName": {
+            "type": "string"
+        },
+        "baseResourcesUri": {
+            "type": "string"
+        },
+        "domainName": {
+            "type": "string"
+        },
+        "adServerAddress": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        },
+        "subnetRef": {
+            "type": "string"
+        },
+        "vmDiskBaseUri": {
+            "type": "string"
+        },
+        "winVM": {
+            "type": "object"
+        }
+    },
+    "variables": {
+        "appNicPrefix": "[parameters('appServerName')]",
+        "appModulesURL": "[concat(parameters('baseResourcesUri'), 'CreateAppServer.ps1.zip')]",
+        "appConfigurationFunction": "CreateAppServer.ps1\\CreateAppServer",
+        "apiVersion": "2015-06-15"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[variables('appNicPrefix')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "displayName": "appServer_NetworkInterface"
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[parameters('subnetRef')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('appServerName')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('appNicPrefix'))]"
+            ],
+            "tags": {
+                "displayName": "app_vm_resource"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('winVM').vmSize]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('appServerName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('winVM').imagePublisher]",
+                        "offer": "[parameters('winVM').imageOffer]",
+                        "sku": "[parameters('winVM').imageSKU]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "osdisk",
+                        "vhd": {
+                            "uri": "[concat(parameters('vmDiskBaseUri'), parameters('appServerName'),'-osdisk.vhd')]"
+                        },
+                        "caching": "None",
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "properties": {
+                                "primary": "true"
+                            },
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('appNicPrefix'))]"
+                        }
+                    ]
+                }
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "name": "[concat(parameters('appServerName'),'/CreateAppServer')]",
+                    "apiVersion": "[variables('apiVersion')]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('appServerName'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Powershell",
+                        "type": "DSC",
+                        "typeHandlerVersion": "2.14",
+                        "autoUpgradeMinorVersion": true,
+                        "protectedSettings": {
+                            "Items": {
+                                "AdminPassword": "[parameters('adminPassword')]"
+                            }
+                        },
+                        "settings": {
+                            "ModulesUrl": "[variables('appModulesURL')]",
+                            "ConfigurationFunction": "[variables('appConfigurationFunction')]",
+                            "Properties": [
+                                {
+                                    "Name": "AdminCreds",
+                                    "value": {
+                                        "UserName": "[parameters('adminUsername')]",
+                                        "Password": "PrivateSettingsRef:AdminPassword"
+                                    },
+                                    "TypeName": "System.Management.Automation.PSCredential"
+                                },
+                                {
+                                  "Name": "DomainName",
+                                  "Value": "[parameters('domainName')]",
+                                  "TypeName": "System.String"
+                                },
+                                {
+                                  "Name": "MachineName",
+                                  "Value": "[parameters('appServerName')]",
+                                  "TypeName": "System.String"
+                                },
+                                {
+                                  "Name": "DnsServerAddress",
+                                  "Value": "[parameters('adServerAddress')]",
+                                  "TypeName": "System.String"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
