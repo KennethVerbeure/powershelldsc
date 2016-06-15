@@ -266,7 +266,7 @@ if __name__ == '__main__':
         'invalidate_repo_url': None,
         'apply_changes_after_repo_url_invalidation': True,
         'iaas_stack': 'azure',
-        'version': '3.1.0',
+        'version': '3.0.2',
         'config_fixtures': 'azure-arm',
         'vm_basename': 'awingu',
         'ssh_patches': False,
