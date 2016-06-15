@@ -74,6 +74,11 @@
             "name": "[parameters('awinguVmName')]",
             "apiVersion": "[variables('apiVersion')]",
             "location": "[parameters('location')]",
+            "plan": {
+                "name": "[parameters('awinguVM').imageSKU]",
+                "product": "[parameters('awinguVM').imageOffer]",
+                "publisher": "[parameters('awinguVM').imagePublisher]"
+            },
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', parameters('awinguVmName'))]"
             ],
@@ -87,11 +92,14 @@
                     "adminPassword": "[parameters('adminPassword')]"
                 },
                 "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('awinguVM').imagePublisher]",
+                        "offer": "[parameters('awinguVM').imageOffer]",
+                        "sku": "[parameters('awinguVM').imageSKU]",
+                        "version": "latest"
+                    },
                     "osDisk": {
                         "name": "osdisk",
-                        "image": {
-                            "uri": "[parameters('awinguVM').image]"
-                        },
                         "osType": "Linux",
                         "vhd": {
                             "uri": "[concat(parameters('vmDiskBaseUri'), parameters('awinguVmName'),'-osdisk.vhd')]"
