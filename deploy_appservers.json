@@ -11,7 +11,7 @@
         "appServerName": {
             "type": "string"
         },
-        "baseResourcesUri": {
+        "artifactsLocation": {
             "type": "string"
         },
         "domainName": {
@@ -26,9 +26,6 @@
         "subnetRef": {
             "type": "string"
         },
-        "securityGroup": {
-            "type": "string"
-        },
         "vmDiskBaseUri": {
             "type": "string"
         },
@@ -38,7 +35,7 @@
     },
     "variables": {
         "appNicPrefix": "[parameters('appServerName')]",
-        "appModulesURL": "[concat(parameters('baseResourcesUri'), 'CreateAppServer.ps1.zip')]",
+        "appModulesURL": "[concat(parameters('artifactsLocation'), 'CreateAppServer.ps1.zip')]",
         "appConfigurationFunction": "CreateAppServer.ps1\\CreateAppServer",
         "apiVersion": "2015-06-15"
     },
@@ -62,10 +59,7 @@
                             }
                         }
                     }
-                ],
-                "networkSecurityGroup": {
-                    "id": "[parameters('securityGroup')]"
-                }
+                ]
             }
         },
         {
