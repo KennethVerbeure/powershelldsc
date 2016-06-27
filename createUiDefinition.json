@@ -2,27 +2,7 @@
     "handler": "Microsoft.Compute.MultiVm",
     "version": "0.0.1-preview",
     "parameters": {
-        "basics": [
-            {
-                "name": "adminUsername",
-                "type": "Microsoft.Compute.UserNameTextBox",
-                "label": "Username",
-                "toolTip": "Admin username for the virtual machines.",
-                "osPlatform": "Windows"
-            },
-            {
-                "name": "adminPassword",
-                "type": "Microsoft.Compute.CredentialsCombo",
-                "label": {
-                    "password": "Password",
-                    "confirmPassword": "Confirm password"
-                },
-                "toolTip": {
-                    "password": "Admin password for the virtual machines."
-                },
-                "osPlatform": "Windows"
-            }
-        ],
+        "basics": [],
         "steps": [
             {
                 "name": "infrastructureConfig",
@@ -89,6 +69,29 @@
                 "bladeTitle": "Awingu Configuration",
                 "elements": [
                     {
+                        "name": "adminUsername",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Admin username",
+                        "toolTip": "Admin username for the virtual machines.",
+                        "constraints": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "name": "adminPassword",
+                        "type": "Microsoft.Common.PasswordBox",
+                        "label": {
+                            "password": "Admin Password",
+                            "confirmPassword": "Confirm password"
+                        },
+                        "toolTip": {
+                            "password": "Admin password for the virtual machines."
+                        },
+                        "constraints": {
+                            "required": true
+                        }
+                    },
+                    {
                         "name": "domainName",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Domain name",
@@ -98,42 +101,94 @@
                         }
                     },
                     {
-                        "name": "adVmName",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Active Directory vm name",
-                        "toolTip": "Active directory vm name",
-                        "constraints": {
-                            "required": true
-                        }
-                    },
-                    {
-                        "name": "appServerVmBaseName",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Appserver vm base name",
-                        "toolTip": "Appserver vm base name",
-                        "constraints": {
-                            "required": true
-                        }
-                    },
-                    {
                         "name": "appServerCount",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Appserver count",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "App Server Count",
                         "defaultValue": "1",
-                        "toolTip": "Amount of appservers to deploy.",
+                        "toolTip": "Specify the number of app servers in this deployment.",
                         "constraints": {
-                            "required": true,
-                            "regex": "^[0-9]+$",
-                            "validationMessage": "Only numeric characters are allowed"
-                        }
-                    },
-                    {
-                        "name": "awinguVmName",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Awingu vm name",
-                        "toolTip": "Awingu vm name",
-                        "constraints": {
-                            "required": true
+                            "allowedValues": [
+                                {
+                                    "label": "1",
+                                    "value": 1
+                                },
+                                {
+                                    "label": "2",
+                                    "value": 2
+                                },
+                                {
+                                    "label": "3",
+                                    "value": 3
+                                },
+                                {
+                                    "label": "4",
+                                    "value": 4
+                                },
+                                {
+                                    "label": "5",
+                                    "value": 5
+                                },
+                                {
+                                    "label": "6",
+                                    "value": 6
+                                },
+                                {
+                                    "label": "7",
+                                    "value": 7
+                                },
+                                {
+                                    "label": "8",
+                                    "value": 8
+                                },
+                                {
+                                    "label": "9",
+                                    "value": 9
+                                },
+                                {
+                                    "label": "10",
+                                    "value": 10
+                                },
+                                {
+                                    "label": "11",
+                                    "value": 11
+                                },
+                                {
+                                    "label": "12",
+                                    "value": 12
+                                },
+                                {
+                                    "label": "13",
+                                    "value": 13
+                                },
+                                {
+                                    "label": "14",
+                                    "value": 14
+                                },
+                                {
+                                    "label": "15",
+                                    "value": 15
+                                },
+                                {
+                                    "label": "16",
+                                    "value": 16
+                                },
+                                {
+                                    "label": "17",
+                                    "value": 17
+                                },
+                                {
+                                    "label": "18",
+                                    "value": 18
+                                },
+                                {
+                                    "label": "19",
+                                    "value": 19
+                                },
+                                {
+                                    "label": "20",
+                                    "value": 20
+                                }
+                            ]
                         }
                     },
                     {
@@ -145,24 +200,23 @@
                         },
                         "toolTip": {
                             "password": "Admin password for Awingu admin"
+                        },
+                        "constraints": {
+                            "required": true
                         }
                     }
                 ]
             }
         ],
         "outputs": {
-            "location": "[location()]",
-            "adminUsername": "[basics('adminUsername')]",
-            "adminPassword": "[basics('adminPassword')]",
             "storageAccountName": "[steps('infrastructureConfig').storageAccount.name]",
             "existingVirtualNetwerkResourceGroup": "[steps('infrastructureConfig').virtualNetwork.resourceGroup]",
             "existingVirtualNetwerkResource": "[steps('infrastructureConfig').virtualNetwork.name]",
-            "subnetRef": "[steps('infrastructureConfig').virtualNetwork.subnets.subnet.name]",
-            "domainName": "[steps('awinguEnvConfig').domainName]",
-            "adVmName": "[steps('awinguEnvConfig').adVmName]",
-            "appServerVmBaseName": "[steps('awinguEnvConfig').appServerVmBaseName]",
+            "subnetName": "[steps('infrastructureConfig').virtualNetwork.subnets.subnet.name]",
             "appServerCount": "[steps('awinguEnvConfig').appServerCount]",
-            "awinguVmName": "[steps('awinguEnvConfig').awinguVmName]",
+            "adminUsername": "[steps('awinguEnvConfig').adminUsername]",
+            "adminPassword": "[steps('awinguEnvConfig').adminPassword]",
+            "domainName": "[steps('awinguEnvConfig').domainName]",
             "awinguAdminPassword": "[steps('awinguEnvConfig').awinguAdminPassword]"
         }
     }
