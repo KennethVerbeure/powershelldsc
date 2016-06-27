@@ -92,6 +92,15 @@
                         }
                     },
                     {
+                        "name": "emailAddress",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Email Address",
+                        "toolTip": "Email Address",
+                        "constraints": {
+                            "required": true
+                        }
+                    },
+                    {
                         "name": "domainName",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Domain name",
@@ -217,7 +226,8 @@
             "adminUsername": "[steps('awinguEnvConfig').adminUsername]",
             "adminPassword": "[steps('awinguEnvConfig').adminPassword]",
             "domainName": "[steps('awinguEnvConfig').domainName]",
-            "awinguAdminPassword": "[steps('awinguEnvConfig').awinguAdminPassword]"
+            "awinguAdminPassword": "[steps('awinguEnvConfig').awinguAdminPassword]",
+            "emailAddress": "[steps('awinguEnvConfig').emailAddress]"
         }
     }
 }
