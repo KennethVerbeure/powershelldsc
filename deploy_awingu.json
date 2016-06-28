@@ -37,6 +37,9 @@
         },
         "adVmName": {
             "type": "string"
+        },
+        "emailAddress": {
+            "type": "string"
         }
     },
     "variables": {
@@ -133,7 +136,7 @@
                         "[concat(parameters('artifactsLocation'), 'api_installer.py')]",
                         "[concat(parameters('artifactsLocation'), 'notepad.png')]"
                     ],
-                    "commandToExecute": "[concat('python setup_awingu.py --dns ', parameters('adServerAddress'), ' --domain ', parameters('domainName'), ' --admin-pass \"', parameters('awinguAdminPassword'), '\" --domain-admin \"', parameters('adminUsername'), '\" --domain-pass \"', parameters('adminPassword'), '\" --ad-machine-name \"', parameters('adVmName'), '\"')]"
+                    "commandToExecute": "[concat('python setup_awingu.py --dns ', parameters('adServerAddress'), ' --domain ', parameters('domainName'), ' --admin-pass \"', parameters('awinguAdminPassword'), '\" --domain-admin \"', parameters('adminUsername'), '\" --domain-pass \"', parameters('adminPassword'), '\" --ad-machine-name \"', parameters('adVmName'), '\" --email \"', parameters('emailAddress'), '\"')]"
                 }
             }
         }
