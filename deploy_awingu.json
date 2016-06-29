@@ -40,6 +40,9 @@
         },
         "emailAddress": {
             "type": "string"
+        },
+        "publicIpAdressId": {
+            "type": "string"
         }
     },
     "variables": {
@@ -58,6 +61,9 @@
                         "name": "ipconfig1",
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[variables('publicIpAdressId')]"
+                            },
                             "subnet": {
                                 "id": "[parameters('subnetRef')]"
                             }
