@@ -14,9 +14,6 @@
         "publicIpAddressDnsPrefix": {
             "type": "string"
         },
-        "networkSecurityGroupName": {
-            "type": "string"
-        },
         "location": {
             "type": "string"
         }
@@ -65,73 +62,6 @@
                     "domainNameLabel": "[parameters('publicIpAddressDnsPrefix')]"
                 }
             }
-        },
-        {
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "[parameters('networkSecurityGroupName')]",
-            "apiVersion": "2016-03-30",
-            "location": "[parameters('location')]",
-            "properties": {
-                "securityRules": [
-                    {
-                        "name": "http",
-                        "properties": {
-                            "protocol": "Tcp",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "80",
-                            "sourceAddressPrefix": "*",
-                            "destinationAddressPrefix": "*",
-                            "access": "Allow",
-                            "priority": 1010,
-                            "direction": "Inbound"
-                        }
-                    },
-                    {
-                        "name": "httpinstall",
-                        "properties": {
-                            "protocol": "Tcp",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "8080",
-                            "sourceAddressPrefix": "*",
-                            "destinationAddressPrefix": "*",
-                            "access": "Allow",
-                            "priority": 1020,
-                            "direction": "Inbound"
-                        }
-                    },
-                    {
-                        "name": "default-allow-ssh",
-                        "properties": {
-                            "protocol": "Tcp",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "22",
-                            "sourceAddressPrefix": "*",
-                            "destinationAddressPrefix": "*",
-                            "access": "Allow",
-                            "priority": 1030,
-                            "direction": "Inbound"
-                        }
-                    }
-                ]
-            }
         }
-    ],
-    "outputs": {
-        "storageAccountId": {
-          "value": "[resourceId('Microsoft.Storage/StorageAccounts', parameters('storageAccountName'))]",
-          "type": "string"
-        },
-        "virtualNetworkId": {
-            "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
-            "type": "string"
-        },
-        "publicIPAddressId": {
-            "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]",
-            "type": "string"
-        },
-        "networkSecurityGroupId": {
-            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]",
-            "type": "string"
-        }
-    }
+    ]
 }
