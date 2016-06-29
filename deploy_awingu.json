@@ -119,7 +119,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(parameters('awinguVmName'), '/certificates')]",
+            "name": "[concat(parameters('awinguVmName'), '/setupAwingu')]",
             "apiVersion": "[variables('apiVersion')]",
             "location": "[parameters('location')]",
             "dependsOn": [
@@ -134,7 +134,8 @@
                     "fileUris": [
                         "[concat(parameters('artifactsLocation'), 'setup_awingu.py')]",
                         "[concat(parameters('artifactsLocation'), 'api_installer.py')]",
-                        "[concat(parameters('artifactsLocation'), 'notepad.png')]"
+                        "[concat(parameters('artifactsLocation'), 'notepad.png')]",
+                        "[concat(parameters('artifactsLocation'), 'mstsc.png')]"
                     ],
                     "commandToExecute": "[concat('python setup_awingu.py --dns ', parameters('adServerAddress'), ' --domain ', parameters('domainName'), ' --admin-pass \"', parameters('awinguAdminPassword'), '\" --domain-admin \"', parameters('adminUsername'), '\" --domain-pass \"', parameters('adminPassword'), '\" --ad-machine-name \"', parameters('adVmName'), '\" --email \"', parameters('emailAddress'), '\"')]"
                 }

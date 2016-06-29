@@ -6,6 +6,7 @@ import logging
 import os
 import json
 import argparse
+import requests
 
 from shutil import copyfile
 
@@ -164,7 +165,7 @@ def create_apps_config(base_path, configs_path, domain_name):
     apps_config[domain_name] = [
         {
             'protocol': 'REMOTE-APP',
-            'description': 'Notepad running on Application Server 2010',
+            'description': 'Notepad running on Application Server 2012',
             'serverLabels': [
                 {
                     'key': 'servergroup',
@@ -188,6 +189,31 @@ def create_apps_config(base_path, configs_path, domain_name):
             'supportsUnicodeKbd': True,
             'categories': [],
             'name': 'Notepad'
+        },
+        {
+            'protocol': 'REMOTE-APP',
+            'description': 'Remote desktop connection running on ' +
+                'Application Server 2012',
+            'serverLabels': [
+                {
+                    'key': 'servergroup',
+                    'value': 'win2012'
+                }
+            ],
+            'labels': [],
+            'workingFolder': '',
+            'userLabels': [
+                {
+                    'key': 'admin',
+                    'value': ''
+                }
+            ],
+            'command': 'MSTSC',
+            'mediaTypes': [],
+            'icon': 'mstsc.png',
+            'supportsUnicodeKbd': True,
+            'categories': [],
+            'name': 'AD Remote desktop'
         }
     ]
 
@@ -238,6 +264,19 @@ def setup_icons():
         os.makedirs(icons_path)
 
         copyfile('%s/notepad.png' % base_path, '%s/notepad.png' % icons_path)
+        copyfile('%s/mstsc.png' % base_path, '%s/mstsc.png' % icons_path)
+
+
+def send_email_to_awingu(email):
+    url = 'https://api.awingu.com/api/users/createzoholead'
+
+    try:
+        requests.post(url=url, timeout=10, data={
+            'email': args.email,
+            'company': 'Awingu Greenfield'
+        })
+    except:
+        pass
 
 
 if __name__ == '__main__':
@@ -248,6 +287,7 @@ if __name__ == '__main__':
     parser.add_argument('--domain-admin', type=str, required=True)
     parser.add_argument('--domain-pass', type=str, required=True)
     parser.add_argument('--ad-machine-name', type=str, required=True)
+    parser.add_argument('--email', type=str, required=True)
     args = parser.parse_args()
 
     create_configs(args)
@@ -281,5 +321,5 @@ if __name__ == '__main__':
 
     logger.info('Configuring Awingu')
     configure_via_api(params, nodes)
-
+    send_email_to_awingu(args)
     logger.info('Your Awingu environment is ready')
