@@ -41,7 +41,7 @@
         "emailAddress": {
             "type": "string"
         },
-        "publicIpAdressId": {
+        "publicIpAddressId": {
             "type": "string"
         }
     },
@@ -62,7 +62,7 @@
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
-                                "id": "[variables('publicIpAdressId')]"
+                                "id": "[parameters('publicIpAddressId')]"
                             },
                             "subnet": {
                                 "id": "[parameters('subnetRef')]"
