@@ -5,61 +5,6 @@
         "basics": [],
         "steps": [
             {
-                "name": "infrastructureConfig",
-                "label": "Infrastructure settings",
-                "subLabel": {
-                    "preValidation": "Configure the infrastructure settings",
-                    "postValidation": "Done"
-                },
-                "bladeTitle": "Infrastructure settings",
-                "elements": [
-                    {
-                        "name": "storageAccount",
-                        "type": "Microsoft.Storage.StorageAccountSelector",
-                        "label": "Storage account",
-                        "defaultValue": {
-                            "type": "Standard_LRS"
-                        }
-                    },
-                    {
-                        "name": "virtualNetwork",
-                        "type": "Microsoft.Network.VirtualNetworkCombo",
-                        "label": {
-                            "virtualNetwork": "Virtual network",
-                            "subnets": "Subnets"
-                        },
-                        "toolTip": {
-                            "virtualNetwork": "",
-                            "subnets": ""
-                        },
-                        "defaultValue": {
-                            "name": "vnet01",
-                            "addressPrefixSize": "/16"
-                        },
-                        "constraints": {
-                            "minAddressPrefixSize": "/16"
-                        },
-                        "options": {
-                            "hideExisting": false
-                        },
-                        "subnets": {
-                            "subnet": {
-                                "label": "Subnet",
-                                "defaultValue": {
-                                    "name": "subnet",
-                                    "addressPrefixSize": "/24"
-                                },
-                                "constraints": {
-                                    "minAddressPrefixSize": "/24",
-                                    "minAddressCount": 12,
-                                    "requireContiguousAddresses": true
-                                }
-                            }
-                        }
-                    }
-                ]
-            },
-            {
                 "name": "awinguEnvConfig",
                 "label": "Awingu configuration",
                 "subLabel": {
@@ -92,6 +37,20 @@
                         }
                     },
                     {
+                        "name": "awinguAdminPassword",
+                        "type": "Microsoft.Common.PasswordBox",
+                        "label": {
+                            "password": "Awingu admin Password",
+                            "confirmPassword": "Confirm password"
+                        },
+                        "toolTip": {
+                            "password": "Admin password for Awingu admin"
+                        },
+                        "constraints": {
+                            "required": true
+                        }
+                    },
+                    {
                         "name": "emailAddress",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Email Address",
@@ -105,6 +64,15 @@
                         "type": "Microsoft.Common.TextBox",
                         "label": "Domain name",
                         "toolTip": "Active directory domain",
+                        "constraints": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "name": "publicIpAddressDnsPrefix",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Dns prefix",
+                        "toolTip": "dns prefix for the awingu environment ({prefix}.{location}.cloudapp.azure.com).",
                         "constraints": {
                             "required": true
                         }
@@ -199,35 +167,18 @@
                                 }
                             ]
                         }
-                    },
-                    {
-                        "name": "awinguAdminPassword",
-                        "type": "Microsoft.Common.PasswordBox",
-                        "label": {
-                            "password": "Awingu admin Password",
-                            "confirmPassword": "Confirm password"
-                        },
-                        "toolTip": {
-                            "password": "Admin password for Awingu admin"
-                        },
-                        "constraints": {
-                            "required": true
-                        }
                     }
                 ]
             }
         ],
         "outputs": {
-            "storageAccountName": "[steps('infrastructureConfig').storageAccount.name]",
-            "existingVirtualNetwerkResourceGroup": "[steps('infrastructureConfig').virtualNetwork.resourceGroup]",
-            "existingVirtualNetwerkResource": "[steps('infrastructureConfig').virtualNetwork.name]",
-            "subnetName": "[steps('infrastructureConfig').virtualNetwork.subnets.subnet.name]",
             "appServerCount": "[steps('awinguEnvConfig').appServerCount]",
             "adminUsername": "[steps('awinguEnvConfig').adminUsername]",
             "adminPassword": "[steps('awinguEnvConfig').adminPassword]",
             "domainName": "[steps('awinguEnvConfig').domainName]",
             "awinguAdminPassword": "[steps('awinguEnvConfig').awinguAdminPassword]",
-            "emailAddress": "[steps('awinguEnvConfig').emailAddress]"
+            "emailAddress": "[steps('awinguEnvConfig').emailAddress]",
+            "publicIpAddressDnsPrefix": "[steps('awinguEnvConfig').publicIpAddressDnsPrefix]"
         }
     }
 }
