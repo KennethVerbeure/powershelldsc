@@ -16,7 +16,7 @@
                     {
                         "name": "adminUsername",
                         "type": "Microsoft.Common.TextBox",
-                        "label": "Admin Username",
+                        "label": "Admin username",
                         "toolTip": "Admin username for Awingu and Windows backend.",
                         "constraints": {
                             "required": true
@@ -26,8 +26,8 @@
                         "name": "adminPassword",
                         "type": "Microsoft.Common.PasswordBox",
                         "label": {
-                            "password": "Admin Password",
-                            "confirmPassword": "Confirm Admin Password"
+                            "password": "Admin password",
+                            "confirmPassword": "Confirm password"
                         },
                         "toolTip": {
                             "password": "Admin password for Awingu and Windows backend."
@@ -39,7 +39,7 @@
                     {
                         "name": "emailAddress",
                         "type": "Microsoft.Common.TextBox",
-                        "label": "Email Address",
+                        "label": "Email address",
                         "toolTip": "Your email address to provide you with access to documentation and support.",
                         "constraints": {
                             "required": true
@@ -48,7 +48,7 @@
                     {
                         "name": "domainName",
                         "type": "Microsoft.Common.TextBox",
-                        "label": "Domain Name",
+                        "label": "Domain name",
                         "toolTip": "Active Directory domain",
                         "constraints": {
                             "required": true
@@ -66,7 +66,7 @@
                     {
                         "name": "appServerCount",
                         "type": "Microsoft.Common.DropDown",
-                        "label": "Application Server Count",
+                        "label": "Application server count",
                         "defaultValue": "1",
                         "toolTip": "Specify the number of application servers you want to deploy.",
                         "constraints": {
@@ -158,8 +158,8 @@
                         "name": "awinguAdminPassword",
                         "type": "Microsoft.Common.PasswordBox",
                         "label": {
-                            "password": "Awingu Recovery Password",
-                            "confirmPassword": "Confirm Awingu Recovery Password"
+                            "password": "Awingu recovery password",
+                            "confirmPassword": "Confirm password"
                         },
                         "toolTip": {
                             "password": "This password allows you to recover your Awingu environment in case of backend problems."
