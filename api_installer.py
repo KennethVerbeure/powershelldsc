@@ -53,23 +53,35 @@ fh.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
 api_logger.addHandler(fh)
 
 
-def log_headers(lg, headers):
-    lg.debug('Headers:')
+def log_headers(log_method, headers):
+    log_method('Headers:')
     for line in pprint.pformat(dict(headers), width=1).splitlines():
-        lg.debug('%s%s', (9 * ' '), line)
+        log_method('%s%s', (9 * ' '), line)
 
 
-def log_data(lg, data):
+def log_data(log_method, data):
     if data:
-        lg.debug('Data:')
+        log_method('Data:')
         try:
             data_dict = json.loads(data)
             for line in pprint.pformat(data_dict, width=1).splitlines():
-                lg.debug('%s%s', (6 * ' '), line)
+                log_method('%s%s', (6 * ' '), line)
         except:
-            lg.debug('%s%s', (6 * ' '), data)
+            log_method('%s%s', (6 * ' '), data)
     else:
         return
+
+
+def _dont_log_errors(response):
+    return False
+
+
+def _log_all_errors(response):
+    return not response.ok
+
+
+def _log_all_errors_but_429(response):
+    return not response.ok and response.status_code != 429
 
 
 def api_call(request_type, session, url, log=True, raise_for_status=True,
@@ -78,16 +90,24 @@ def api_call(request_type, session, url, log=True, raise_for_status=True,
         raise NotImplementedError('Request of type %s is not implemented' %
                                   request_type)
 
-    response = _api_call(request_type, session, url, log, data, headers,
-                         **kwargs)
+    if raise_for_status:
+        log_error = _log_all_errors_but_429
+    else:
+        log_error = _dont_log_errors
+
+    response = _api_call(request_type, session, url, log, log_error, data,
+                         headers, **kwargs)
     # Retry if we get a 429 Client Error: too many requests
     if response.status_code == 429:
+        if raise_for_status:
+            log_error = _log_all_errors
         logger.warning(
             'Due to HTTP error %s (%s), we will wait 1 minute and retry',
             response.status_code, response.reason)
         time.sleep(60)
-        response = _api_call(request_type, session, url, log, data, headers,
-                             **kwargs)
+
+        response = _api_call(request_type, session, url, log, log_error, data,
+                             headers, **kwargs)
 
     if raise_for_status:
         response.raise_for_status()
@@ -95,23 +115,31 @@ def api_call(request_type, session, url, log=True, raise_for_status=True,
     return response
 
 
-def _api_call(request_type, session, url, log, data, headers, **kwargs):
+def _api_call(request_type, session, url, log, log_error, data, headers,
+              **kwargs):
     call = getattr(session, request_type.lower())
     response = call(url, data=data, headers=headers, **kwargs)
 
+    log_methods = []
     if log:
-        api_logger.debug('%sREQUEST%s', (40 * '-'), (40 * '-'))
-        api_logger.debug('%s to %s', request_type.upper(), url)
+        log_methods.append(api_logger.debug)
+    if log_error(response):
+        log_methods.append(logger.error)
+
+    for log_method in log_methods:
+        log_method('%sREQUEST%s', (40 * '-'), (40 * '-'))
+        log_method('%s to %s', request_type.upper(), url)
         headers_to_log = dict()
         headers_to_log.update(session.headers)
         headers_to_log.update(headers if headers else {})
-        log_headers(api_logger, headers_to_log)
-        log_data(api_logger, data)
+        log_headers(log_method, headers_to_log)
+        log_data(log_method, data)
 
-        api_logger.debug('%sRESPONSE%s', (40 * '-'), (40 * '-'))
-        log_headers(api_logger, response.headers)
-        log_data(api_logger, response.text)
-        api_logger.debug('\n%s\n', 80 * '=')
+        log_method('%sRESPONSE STATUS %s %s', (40 * '-'), response.status_code,
+                   (40 * '-'))
+        log_headers(log_method, response.headers)
+        log_data(log_method, response.text)
+        log_method('\n%s\n', 80 * '=')
 
     return response
 
@@ -125,7 +153,8 @@ def update_dict(original, updates):
 
 
 def patch_appliance(frontend_ips, key_filename, version, params):
-    import fabric.context_managers, fabfile
+    import fabric.context_managers
+    import fabfile
 
     for frontend_ip in frontend_ips:
         with fabric.context_managers.settings(host_string=frontend_ip,
@@ -249,16 +278,16 @@ def install_via_api(params, iaas_config, nodes, pub_ip):
                     'confirmed_password': admin_creds['password'],
                 },
                 'partner': {
-                    'name': 'Partner Inc.',
-                    'addressLine1': 'Partner Street 007',
+                    'name': None,
+                    'addressLine1': None,
                     'addressLine2': None,
-                    'city': 'Partner City',
-                    'location': 'Partner Region',
-                    'postalCode': 'P007',
-                    'country': 'Belgium',
+                    'city': None,
+                    'location': None,
+                    'postalCode': None,
+                    'country': None,
                     'phoneNumber': None},
                 'accountManager': {
-                    'name': 'Mr. Account Manager',
+                    'name': None,
                     'addressLine1': None,
                     'addressLine2': None,
                     'city': None,
@@ -284,9 +313,9 @@ def install_via_api(params, iaas_config, nodes, pub_ip):
     custom_sls = {
         'environment': params.get('environment', 'production'),
         'hosts': {
-            '10.147.128.173': 'build.awingu.com',
+            '10.147.128.194': 'build.awingu.com',
             '10.147.128.131': 'build-2-3.awingu.com',
-            '10.147.128.171': 'build-dev.awingu.com'},
+            '10.147.128.194': 'build-dev.awingu.com'},
     }
 
     databases = params.get('external_databases', {})
@@ -308,7 +337,9 @@ def install_via_api(params, iaas_config, nodes, pub_ip):
         installer_config['config']['database'] = databases
 
     if params.get('ssh_patches', True) is True:
-        import fabric.context_managers, fabfile
+        import fabric.context_managers
+        import fabfile
+
         key_filename = os.path.expanduser('~/.ssh/%s.pem' %
                                           iaas_config['vm_keyname'])
         intervention_key = os.path.expanduser('~/.ssh/intervention_dev.pem')
@@ -371,7 +402,7 @@ def install_via_api(params, iaas_config, nodes, pub_ip):
     wait_for_smc(s, url, max_errors, timeout, 'installation', use_410=True)
 
     if (params.get('ssh_patches', True) is True and
-        SERVICE_CONFIGS[node_config_name] != 'single_node'):
+            SERVICE_CONFIGS[node_config_name] != 'single_node'):
         with fabric.context_managers.settings(host_string=pub_ip,
                                               user='root',
                                               key_filename=intervention_key):
@@ -417,8 +448,8 @@ def make_session(ip, port=None, login=True, creds=API_ADMIN_CREDS):
     if login:
         headers = {'Content-Type': 'application/json'}
         logger.info('POST to %s/api/sessions/', base_url)
-        sess.post(base_url + '/api/sessions/', headers=headers,
-                  data=json.dumps(creds))
+        api_call('post', sess, base_url + '/api/sessions/',
+                 data=json.dumps(creds), headers=headers)
 
     sess.headers.update({'Accept': '',
                          'X-csrftoken': sess.cookies.get('csrftoken')})
@@ -441,10 +472,9 @@ def set_usergroup_flags(usergroups_config, session, base_url, usergroups_uri):
                     flags_to_set)
         for flag in flags_to_set:
             if flag not in [x['key'] for x in existing_ug['userLabels']]:
-                r = session.post('%s%suserlabels/' % (base_url,
-                                                      existing_ug['uri']),
-                                 data=json.dumps({'key': flag}))
-                r.raise_for_status()
+                api_call('post', session,
+                         '%s%suserlabels/' % (base_url, existing_ug['uri']),
+                         data=json.dumps({'key': flag}))
 
 
 def _search_dict_for_uris(d):
@@ -542,7 +572,7 @@ def add_icon(sess, base_url, uri, component_item, created_app, app_id):
 def add_media_types(sess, base_url, uri, component_item, app_id):
     for media_type in component_item['mediaTypes']:
         existing_mediatype = get_existing_object(sess, base_url,
-                                                 '/api/mediatypes',
+                                                 '/api/mediatypes/',
                                                  media_type, 'contentType')
         api_call('post', sess, '%s%s%s/mediatypes/' % (base_url, uri, app_id),
                  data=json.dumps({"mediaTypeUri": existing_mediatype['uri']}),
@@ -562,7 +592,7 @@ def get_existing_object(sess, base_url, uri, object_name, criterium):
 def add_categories(sess, base_url, uri, component_item, app_id):
     for category in component_item['categories']:
         existing_category = get_existing_object(sess, base_url,
-                                                '/api/categories',
+                                                '/api/categories/',
                                                 category, 'name')
         api_call('post', sess, '%s%s%s/categories/' % (base_url, uri, app_id),
                  data=json.dumps({"categoryUri": existing_category['uri']}),
@@ -579,7 +609,7 @@ def add_user_labels(sess, base_url, uri, component_item, object_id):
 
 
 def get_existing_label(sess, base_url, label):
-    existing_labels = api_call('get', sess, '%s/api/labels' % base_url).json()
+    existing_labels = api_call('get', sess, '%s/api/labels/' % base_url).json()
     matched_labels = filter(lambda x: x.get('key') == label['key'] and
                             x.get('value') == label['value'],
                             existing_labels['objects'])
@@ -719,15 +749,17 @@ def import_appservers(sess, base_url, uri, component_config, smc_uris, params):
         appservers_config[domain_name] = []
         appserver_template = component_config[domain_name][0]
 
-        domain = api_call('get', sess, '%s%s%s' %
-            (base_url, smc_uris['domainsUri'], domain_name)).json()
+        domain = api_call(
+            'get', sess, '%s%s%s' % (base_url, smc_uris['domainsUri'],
+                                     domain_name)).json()
 
-        appservers = api_call('get', sess, '%s%s' %
-            (base_url, domain['appServersUri'])).json()['objects']
+        appservers = api_call(
+            'get', sess, '%s%s' % (base_url,
+                                   domain['appServersUri'])).json()['objects']
 
         for appserver in appservers:
             if (appserver['hostName'].lower() in
-                params['import_appserver_blacklist']):
+                    params.get('import_appserver_blacklist', [])):
                 continue
 
             appserver_config = copy.deepcopy(appserver_template)
@@ -748,7 +780,7 @@ def configure_component(component, component_config, sess, base_url,
         configure_features(sess, base_url, uri, component_config)
     elif component == 'usergroups':
         configure_usergroups(sess, base_url, component_config, smc_uris)
-    elif component == 'appservers' and params.get('import_appservers'):
+    elif component == 'appservers' and params.get('import_appservers') is True:
         import_appservers(sess, base_url, uri, component_config, smc_uris,
                           params)
     elif uri.startswith('/smc-api'):
